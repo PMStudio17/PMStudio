@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Login - PM STUDIO</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f1f5f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  .card { width: 420px; background: #fff; border: 1px solid #94a3b8; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .head { background: #c9daf8; text-align: center; font-weight: bold; border-bottom: 1px solid #94a3b8; }
+  .head div:first-child { padding: 10px; font-size: 18px; border-bottom: 1px solid #94a3b8; }
+  .head div:last-child { padding: 8px; font-size: 14px; }
+  .body { padding: 24px; }
+  .row { display: flex; align-items: center; margin-bottom: 14px; }
+  .row label { width: 100px; }
+  .row span { width: 15px; }
+  .row input { flex: 1; padding: 7px; border: 1px solid #94a3b8; }
+  button { display: block; margin: 20px auto 0; padding: 8px 36px; background: #fff; border: 1px solid #64748b; cursor: pointer; font-size: 15px; }
+  button:hover { background: #c9daf8; font-weight: bold; }
+  #err { color: red; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head"><div>PM STUDIO</div><div>Spotify Organic Playlist Curation Services</div></div>
+  <div class="body">
+    <div class="row"><label>User</label><span>:</span><input type="text" id="u" placeholder="admin"></div>
+    <div class="row"><label>Password</label><span>:</span><input type="password" id="p" placeholder="pmstudio123"></div>
+    <button type="button" onclick="cekLogin()">Login</button>
+    <div id="err">User atau Password salah!</div>
+  </div>
+</div>
+<script>
+function cekLogin() {
+  if (document.getElementById('u').value.trim() === 'admin' && document.getElementById('p').value.trim() === 'pmstudio123') {
+    window.location.href = 'beranda.html';
+  } else {
+    document.getElementById('err').style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>
