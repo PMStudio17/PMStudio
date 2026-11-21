@@ -51,38 +51,38 @@
     <button type="button" class="tab active" onclick="bukaTab('pInput', this)">1. Input Data</button>
     <button type="button" class="tab" onclick="bukaTab('pRekap', this)">2. Rekap Keseluruhan</button>
     <button type="button" class="tab" onclick="bukaTab('pInvoice', this)">3. Output Invoice</button>
-   <button type="button" class="tab" onclick="bukaTab('pInvoice', this)">4. Rekap Live Lagu</button>
-   <button type="button" class="tab" onclick="bukaTab('pClient', this)">5. Data Client</button>
-   <button type="button" class="tab" onclick="bukaTab('pPendapatan', this)">6. Rincian Pendapatan</button>
-   <button type="button" class="tab" onclick="bukaTab('pSlip', this)">7. Slip Gaji</button>
+    <button type="button" class="tab" onclick="bukaTab('pLive', this)">4. Rekap Live Lagu</button>
+    <button type="button" class="tab" onclick="bukaTab('pClient', this)">5. Data Client</button>
+    <button type="button" class="tab" onclick="bukaTab('pGaji', this)">6. Breakdown Gaji</button>
+    <button type="button" class="tab" onclick="bukaTab('pSlip', this)">7. Slip Gaji</button>
   </div>
 
   <div id="pInput" class="panel active">
     <h3 style="margin-top:0;">Input Data Placement</h3>
     <div class="grid">
-      <div class="fg"><label>No Invoice</label><input type="text" id="fNoInv" placeholder="INV/PMS/2026/11/056"></div>
+      <div class="fg"><label>No Invoice</label><input type="text" id="fNoInv" placeholder="INV/PMS/2020/11/017"></div>
       <div class="fg"><label>Tanggal Invoice</label><input type="date" id="fTglInv"></div>
-      <div class="fg"><label>Nama Client</label><input type="text" id="fClient" placeholder="Wispy Noir"></div>
+      <div class="fg"><label>Nama Client</label><select id="fClient"></select></div>
       <div class="fg"><label>E-Mail</label><input type="text" id="fEmail" placeholder="wispynoir@gmail.com"></div>
       <div class="fg"><label>Type</label><select id="fType"><option>Agency Partner — Playlist Placement</option><option>Single Placement</option><option>-</option></select></div>
       <div class="fg"><label>Nama Artis</label><input type="text" id="fArtis" placeholder="Alya Yura"></div>
       <div class="fg"><label>Judul Lagu</label><input type="text" id="fLagu" placeholder="Nona"></div>
       <div class="fg"><label>Durasi</label><input type="number" id="fDurasi" value="1" min="1" oninput="hitungSub()"></div>
+      <div class="fg"><label>Periode</label><select id="fPeriode"><option>Bulan</option><option>Minggu</option></select></div>
+      <div class="fg"><label>Playlist</label><select id="fPlaylist"><option>Main Playlist Placement</option><option>Secondary Playlist Placement</option></select></div>
       <div class="fg"><label>Join Date (Live Mulai)</label><input type="date" id="fMulai"></div>
       <div class="fg"><label>Expired (Live Selesai)</label><input type="date" id="fSelesai"></div>
       <div class="fg"><label>Rate (Rp)</label><input type="number" id="fRate" placeholder="600000" oninput="hitungSub()"></div>
-      <div class="fg"><label>Subtotal</label><input type="text" id="fSub" value="Rp 0" readonly></div>
-      <div class="fg"><label>Periode</label><select id="fPeriode"><option>Bulan</option><option>Minggu</option></select></div>
-      <div class="fg"><label>Playlist</label><select id="fPlaylist"><option>Main Playlist Placement</option><option>Secondary Playlist Placement</option></select></div>
+      <div class="fg"><label>Subtotal</label><input type="text" id="fSub" value="Rp 0" readonly></div>      
     </div>
     <button type="button" class="btn" onclick="simpanData()">+ Simpan ke Rekap &amp; Invoice</button>
   </div>
 
   <div id="pRekap" class="panel">
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h3 style="margin:0;">Rekap Keseluruhan (Urut Cut Off Terakhir di Bawah)</h3>
+      <h3 style="margin:0;">Rekap Data Keseluruhan</h3>
       <div>
-        <button type="button" class="btn btn-sm btn-green" onclick="downloadCsv()">Download Excel (CSV)</button>
+        <button type="button" class="btn btn-sm btn-green" onclick="downloadCsv()">Download CSV (CSV)</button>
         <button type="button" class="btn btn-sm btn-red" onclick="hapusSemua()">Hapus Semua</button>
       </div>
     </div>
@@ -93,8 +93,7 @@
         <tfoot><tr><td colspan="12" class="r"><strong>TOTAL KESELURUHAN</strong></td><td class="r" id="totRekap"><strong>Rp 0</strong></td><td colspan="3"></td></tr></tfoot>
       </table>
     </div>
-  </div>
-
+  </div>	
   <div id="pInvoice" class="panel">
     <div id="invBar" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"></div>
     <div id="printArea" class="inv-box">
@@ -118,16 +117,64 @@
       </table>
       <div style="text-align:right; font-size:12.5px; font-weight:bold; margin:8px 0;">Total Placement: <span id="iCount">0</span> Placement</div>
       <div class="inv-tot"><span>TOTAL TAGIHAN:</span><span>Rp <span id="iTotal">0</span></span></div>
-      <div style="font-size:12px; font-weight:bold; font-style:italic; margin-top:10px;">Terbilang :</div>
+      <div style="font-size:12px; font-weight:bold; font-style:italic; margin-top:8px;">Terbilang :</div>
       <div class="inv-terbilang" id="iTerbilang">Nol Rupiah</div>
       <div class="inv-foot">
-        <div><strong>INSTRUKSI PEMBAYARAN:</strong><br><br><br>
-         Pembayaran dapat dilakukan melalui scan QRIS di sebelah kanan (GoPay, OVO, Dana, ShopeePay, &amp; Mobile Banking) atau transfer bank. Mohon konfirmasi bukti transfer agar placement segera diproses.</div>
-        <img src="kris.png" alt="kris" style="width:100px; height:100px; object-fit:contain; border-radius:6px;">
+        <div><strong>INSTRUKSI PEMBAYARAN:</strong>
+Pembayaran dapat dilakukan melalui scan QRIS di sebelah kanan (GoPay, OVO, Dana, ShopeePay, &amp; Mobile Banking) atau transfer bank. Mohon konfirmasi bukti transfer agar placement segera diproses.</div>
+        <img src="Qris.JPEG" alt="Qris" style="width:95px; height:95px; object-fit:contain; border-radius:6px;">
       </div>
     </div>
   </div>
 </div>
+<!-- 4. REKAP LIVE LAGU -->
+<div id="pLive" class="panel">
+  <h3 style="margin-top:0;">Rekap Live Lagu</h3>
+  <p>Konten Rekap Live Lagu akan tampil di sini.</p>
+</div>
+
+<!-- 5. DATA CLIENT -->
+<div id="pClient" class="panel">
+  <h3 style="margin-top:0;">Database Client</h3>
+  <div class="grid">
+    <div class="fg"><label>Nama Client</label><input type="text" id="cNama" placeholder="Mas Erik / Sabs Media"></div>
+    <div class="fg"><label>E-Mail</label><input type="email" id="cEmail" placeholder="erik.purwanto@sabs.id"></div>
+    <div class="fg"><label>Type</label>
+      <select id="cType">
+        <option>Agency Partner — Playlist Placement</option>
+        <option>Single Placement</option>
+        <option>-</option>
+      </select>
+    </div>
+  </div>
+  <button type="button" class="btn" onclick="simpanClient()">+ Simpan Client</button>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="c">No</th>
+          <th>Nama Client</th>
+          <th>E-Mail</th>
+          <th>Type</th>
+          <th class="c">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbClient"></tbody>
+    </table>
+  </div>
+</div>
+<!-- 6. BREAKDOWN GAJI -->
+<div id="pGaji" class="panel">
+  <h3 style="margin-top:0;">Breakdown Gaji</h3>
+  <p>Konten Breakdown Gaji akan tampil di sini.</p>
+</div>
+
+<!-- 7. SLIP GAJI -->
+<div id="pSlip" class="panel">
+  <h3 style="margin-top:0;">Slip Gaji</h3>
+  <p>Konten Slip Gaji akan tampil di sini.</p>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>
