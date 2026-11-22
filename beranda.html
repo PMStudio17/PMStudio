@@ -32,12 +32,15 @@
   .inv-tot { width: 320px; margin-left: auto; background: #0077c8; color: #fff; padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; }
   .inv-terbilang { background: #0b2545; color: #fff; padding: 8px 14px; font-style: italic; font-weight: bold; margin: 12px 0; }
   .inv-foot { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-top: 2px solid #cbd5e1; font-size: 11.5px; gap: 15px; }
-  @media print {
+     @media print {
+    @page { size: A4 portrait; margin: 0mm; }
+    body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
     body * { visibility: hidden; }
     #printArea, #printArea * { visibility: visible; }
-    #printArea { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+    #printArea { position: absolute; left: 0; top: 0; width: 100%; min-height: 297mm !important; border: none !important; margin: 0 !important; padding: 15mm !important; background: #fff !important; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   }
+
 </style>
 </head>
 <body>
@@ -112,21 +115,25 @@
         <div style="text-align:right;"><strong style="color:#0077c8;">INVOICE DETAILS:</strong><br>Tanggal: <strong id="iTgl">-</strong><br>No. Invoice: <strong id="iNo">-</strong><br>Status: <strong id="iStat">Due Upon Receipt</strong></div>
       </div>
       <table class="inv-pms">
-        <thead><tr><th class="c">NO</th><th>RINCIAN ARTIS &amp; JUDUL LAGU</th><th class="c">DURASI</th><th class="c">PERIODE</th><th class="r">RATE</th><th class="r">SUBTOTAL</th></tr></thead>
+        <thead><tr><th class="c">NO</th><th>RINCIAN ARTIS &amp; JUDUL LAGU</th><th class="c">DURASI</th><th class="c">PERIODE</th><th class="c">RATE</th><th class="c">SUBTOTAL</th></tr></thead>
         <tbody id="tbInv"></tbody>
       </table>
       <div style="text-align:right; font-size:12.5px; font-weight:bold; margin:8px 0;">Total Placement: <span id="iCount">0</span> Placement</div>
       <div class="inv-tot"><span>TOTAL TAGIHAN:</span><span>Rp <span id="iTotal">0</span></span></div>
       <div style="font-size:12px; font-weight:bold; font-style:italic; margin-top:8px;">Terbilang :</div>
       <div class="inv-terbilang" id="iTerbilang">Nol Rupiah</div>
-      <div class="inv-foot">
-        <div><strong>INSTRUKSI PEMBAYARAN:</strong>
-Pembayaran dapat dilakukan melalui scan QRIS di sebelah kanan (GoPay, OVO, Dana, ShopeePay, &amp; Mobile Banking) atau transfer bank. Mohon konfirmasi bukti transfer agar placement segera diproses.</div>
-        <img src="kris.png" alt="png" style="width:95px; height:95px; object-fit:contain; border-radius:6px;">
+            <div class="inv-foot" style="align-items:flex-start;">
+        <div style="line-height:1.6;">
+          <strong>INSTRUKSI PEMBAYARAN:</strong><br>
+          	<em>Pembayaran dapat dilakukan melalui scan QRIS di sebelah kanan (Mendukung GoPay, OVO, Dana, ShopeePay, &amp; Mobile Banking) atau via 			transfer bank.<br>
+          Mohon konfirmasi dan lampirkan bukti transfer setelah pembayaran dilakukan agar placement seluruh materi dapat langsung diproses ke jadwal tim 		kurasi.</em>
+        </div>
+        <div style="text-align:center; flex-shrink:0;">
+          <img src="qris.jpeg" alt="QRIS" style="width:95px; height:95px; object-fit:contain; border:1px solid #cbd5e1; background:#fff;">
+          <div style="font-size:9.5px; color:#475569; margin-top:4px; font-weight:bold;">Scan via QRIS All Payment</div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
+
 <!-- 4. REKAP LIVE LAGU -->
 <div id="pLive" class="panel">
   <h3 style="margin-top:0;">Rekap Live Lagu</h3>
