@@ -166,6 +166,60 @@ function renderInv() {
   document.getElementById('iTerbilang').textContent = tot ? (terbilang(tot).trim() + ' Rupiah') : 'Nol Rupiah';
 }
 
+(function() {
+  var sel = document.getElementById('fClient');
+  if (!sel) return;
+
+  // Ubah <select> menjadi 1 kotak <input> yang punya tombol panah dropdown + search
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.id = 'fClient';
+  inp.placeholder = 'Pilih / ketik nama client...';
+  inp.autocomplete = 'off';
+  inp.style.cssText = 'width:100%; padding:7px 26px 7px 7px; border:1px solid #cbd5e1; border-radius:4px;';
+
+  var boxWrap = document.createElement('div');
+  boxWrap.style.cssText = 'position:relative; width:100%;';
+  sel.parentNode.replaceChild(boxWrap, sel);
+  boxWrap.appendChild(inp);
+
+  var arrow = document.createElement('span');
+  arrow.innerHTML = '&#9662;';
+  arrow.style.cssText = 'position:absolute; right:8px; top:50%; transform:translateY(-50%); pointer-events:none; color:#475569; font-size:12px;';
+  boxWrap.appendChild(arrow);
+
+  var list = document.createElement('div');
+  list.style.cssText = 'position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #cbd5e1; border-radius:4px; max-height:150px; overflow-y:auto; z-index:99; display:none; box-shadow:0 4px 8px rgba(0,0,0,0.1);';
+  boxWrap.appendChild(list);
+
+  function showList(q) {
+    var hasil = dbC.filter(function(c) { return c.nama.toLowerCase().indexOf((q || '').toLowerCase()) !== -1; });
+    list.innerHTML = '';
+    if (!hasil.length) { list.style.display = 'none'; return; }
+    hasil.forEach(function(c) {
+      var opt = document.createElement('div');
+      opt.textContent = c.nama;
+      opt.style.cssText = 'padding:7px 9px; cursor:pointer; font-size:13px;';
+      opt.onmouseover = function() { opt.style.background = '#0077c8'; opt.style.color = '#fff'; };
+      opt.onmouseout = function() { opt.style.background = '#fff'; opt.style.color = '#1e293b'; };
+      opt.onmousedown = function(e) {
+        e.preventDefault();
+        inp.value = c.nama;
+        document.getElementById('fEmail').value = c.email;
+        document.getElementById('fType').value = c.type;
+        list.style.display = 'none';
+      };
+      list.appendChild(opt);
+    });
+    list.style.display = 'block';
+  }
+
+  inp.onfocus = function() { showList(''); };
+  inp.oninput = function() { showList(inp.value); };
+  inp.onblur = function() { setTimeout(function() { list.style.display = 'none'; }, 150); };
+})();
+
+
 function hitungExpired() {
   const m = document.getElementById('fMulai').value;
   const d = Number(document.getElementById('fDurasi').value) || 0;
