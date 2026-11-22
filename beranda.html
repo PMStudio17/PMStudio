@@ -29,8 +29,8 @@
   .inv-box { max-width: 820px; margin: 16px auto; border: 1px solid #cbd5e1; padding: 30px; background: #fff; }
   .inv-head { display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; }
   .inv-pms th { background: #0b2545; color: #fff; }
-  .inv-tot { width: 320px; margin-left: auto; background: #0077c8; color: #fff; padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; }
-  .inv-terbilang { background: #0b2545; color: #fff; padding: 8px 14px; font-style: italic; font-weight: bold; margin: 12px 0; }
+  .inv-tot { width: 280px; margin-left: auto; background: #0077c8; color: #fff; padding: 6px 10px; font-size: 12.5px; font-weight: bold; display: flex; justify-content: space-between; }
+  .inv-terbilang { background: #0b2545; color: #fff; padding: 6px 12px; font-size: 12px; font-style: italic; font-weight: bold; margin: 8px 0; }
   .inv-foot { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-top: 2px solid #cbd5e1; font-size: 11.5px; gap: 15px; }
    @media print {
     @page { size: A4 portrait; margin: 0mm; }
@@ -72,7 +72,14 @@
       <div class="fg"><label>Judul Lagu</label><input type="text" id="fLagu" placeholder="Nona"></div>
       <div class="fg"><label>Durasi</label><input type="number" id="fDurasi" value="1" min="1" oninput="hitungSub()"></div>
       <div class="fg"><label>Periode</label><select id="fPeriode"><option>Bulan</option><option>Minggu</option></select></div>
-      <div class="fg"><label>Playlist</label><select id="fPlaylist"><option>Main Playlist Placement</option><option>Secondary Playlist Placement</option></select></div>
+      <div class="fg"><label>Playlist</label><select id="fPlaylist">
+<option>Main Playlist Placement</option>
+<option>Secondary Playlist Placement</option>
+<option>Alternative 1 Playlist Placement</option>
+<option>Alternative 2 Playlist Placement</option>
+<option>Alternative 3 Playlist Placement</option>
+<option>Alternative 4 Playlist Placement</option>
+</select></div>
       <div class="fg"><label>Join Date (Live Mulai)</label><input type="date" id="fMulai"></div>
       <div class="fg"><label>Expired (Live Selesai)</label><input type="date" id="fSelesai"></div>
       <div class="fg"><label>Rate (Rp)</label><input type="number" id="fRate" placeholder="600000" oninput="hitungSub()"></div>
@@ -80,6 +87,7 @@
     </div>
     <button type="button" class="btn" onclick="simpanData()">+ Simpan ke Rekap &amp; Invoice</button>
   </div>
+
 
   <div id="pRekap" class="panel">
     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -90,13 +98,37 @@
       </div>
     </div>
     <div class="tbl-wrap">
-      <table>
-        <thead><tr><th class="c">No</th><th>No Invoice</th><th>Tgl Invoice</th><th>Client</th><th>Email</th><th>Type</th><th>Artis</th><th>Judul Lagu</th><th class="c">Durasi</th><th>Join Date</th><th>Cut Off</th><th class="r">Rate</th><th class="r">Subtotal</th><th>Periode</th><th>Playlist</th><th class="c">Aksi</th></tr></thead>
+        <table>
+        <thead>
+          <tr>
+            <th class="c">No</th>
+            <th class="c">Tgl Invoice</th>
+            <th class="c">No Invoice</th>
+            <th class="c">Client</th>
+            <th class="c">Artis</th>
+            <th class="c">Judul Lagu</th>
+            <th class="c">Durasi</th>
+            <th class="c" colspan="2">Live (Join &amp; Exp)</th>
+            <th class="c">Rate</th>
+            <th class="c">Subtotal</th>
+            <th class="c">Playlist</th>
+            <th class="c">Aksi</th>
+          </tr>
+        </thead>
         <tbody id="tbRekap"></tbody>
-        <tfoot><tr><td colspan="12" class="r"><strong>TOTAL KESELURUHAN</strong></td><td class="r" id="totRekap"><strong>Rp 0</strong></td><td colspan="3"></td></tr></tfoot>
+        <tfoot>
+          <tr>
+            <td colspan="10" class="r"><strong>TOTAL KESELURUHAN</strong></td>
+            <td class="r" id="totRekap"><strong>Rp 0</strong></td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
       </table>
+
     </div>
-  </div>	
+  </div>
+
+	
   <div id="pInvoice" class="panel">
     <div id="invBar" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"></div>
     <div id="printArea" class="inv-box">
@@ -115,7 +147,7 @@
         <div style="text-align:right;"><strong style="color:#0077c8;">INVOICE DETAILS:</strong><br>Tanggal: <strong id="iTgl">-</strong><br>No. Invoice: <strong id="iNo">-</strong><br>Status: <strong id="iStat">Due Upon Receipt</strong></div>
       </div>
       <table class="inv-pms">
-        <thead><tr><th class="c">NO</th><th>RINCIAN ARTIS &amp; JUDUL LAGU</th><th class="c">DURASI</th><th class="c">PERIODE</th><th class="r">RATE</th><th class="r">SUBTOTAL</th></tr></thead>
+        <thead><tr><th class="c">NO</th><th>RINCIAN ARTIS &amp; JUDUL LAGU</th><th class="c">DURASI</th><th class="c">PERIODE</th><th class="c">RATE</th><th class="r">SUBTOTAL</th></tr></thead>
         <tbody id="tbInv"></tbody>
       </table>
       <div style="text-align:right; font-size:12.5px; font-weight:bold; margin:8px 0;">Total Placement: <span id="iCount">0</span> Placement</div>
@@ -148,8 +180,8 @@
 <div id="pClient" class="panel">
   <h3 style="margin-top:0;">Database Client</h3>
   <div class="grid">
-    <div class="fg"><label>Nama Client</label><input type="text" id="cNama" placeholder="Mas Erik / Sabs Media"></div>
-    <div class="fg"><label>E-Mail</label><input type="email" id="cEmail" placeholder="erik.purwanto@sabs.id"></div>
+    <div class="fg"><label>Nama Client</label><input type="text" id="cNama" placeholder="Nona Alya"></div>
+    <div class="fg"><label>E-Mail</label><input type="email" id="cEmail" placeholder="alyayura96@gmail.com"></div>
     <div class="fg"><label>Type</label>
       <select id="cType">
         <option>Agency Partner — Playlist Placement</option>
