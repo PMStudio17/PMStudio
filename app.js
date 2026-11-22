@@ -255,74 +255,58 @@ renderClient();
     });
   }
 })();
-var areaInv = document.getElementById('printArea');
-if (areaInv && !document.getElementById('ftPmStudio')) {
-  var ft = document.createElement('div');
-  ft.id = 'ftPmStudio';
-  ft.style.cssText = 'margin-top:18px; padding-top:10px; border-top:1px dashed #cbd5e1; text-align:center; font-size:11.5px; color:#475569; line-height:1.6;';
-  ft.innerHTML = '<div>Terima kasih atas kerja samanya dengan PM Studio</div><div><strong>' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) + '</strong></div>';
-  areaInv.appendChild(ft);
-}
-
-// === TAMBAHAN PENYAMAAN FORMAT INVOICE & FOOTER A4 ===
 function tglIndo(str, pendek) {
   if (!str || str === '-') return '-';
-  var d = new Date(str + 'T00:00:00');
+  const d = new Date(str + 'T00:00:00');
   if (isNaN(d)) return str;
-  var bln = pendek
+  const bln = pendek
     ? ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des']
     : ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  return d.getDate() + ' ' + bln[d.getMonth()] + ' ' + d.getFullYear();
+  return `${d.getDate()} ${bln[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function rpCell(n) {
-  return '<div style="display:flex; justify-content:space-between; gap:8px;"><span>Rp</span><span>' + Number(n || 0).toLocaleString('id-ID') + '</span></div>';
+  return `<div style="display:flex; justify-content:space-between; gap:8px;"><span>Rp</span><span>${Number(n || 0).toLocaleString('id-ID')}</span></div>`;
 }
 
-renderInv = function() {
-  var items = db.filter(function(x) { return x.noInv === selInv.value; });
-  var tb = document.getElementById('tbInv');
-  tb.innerHTML = '';
+function renderInv() {
+  const items = db.filter(x => x.noInv === selInv.value);
+  const tb = document.getElementById('tbInv'); tb.innerHTML = '';
   if (!items.length) return;
-  var f = items[0];
+  const f = items.at(0);
   document.getElementById('iClient').textContent = f.client;
   document.getElementById('iEmail').textContent = f.email;
   document.getElementById('iType').textContent = f.type;
   document.getElementById('iTgl').textContent = tglIndo(f.tglInv, false);
   document.getElementById('iNo').textContent = f.noInv;
   document.getElementById('iStat').textContent = selStat.value;
-  var tot = 0;
-  items.forEach(function(x, i) {
+  let tot = 0;
+  items.forEach((x, i) => {
     tot += Number(x.sub);
-    tb.innerHTML += '<tr><td class="c">' + (i + 1) + '</td><td><b>' + x.artis + ' &mdash; ' + x.lagu + '</b><br><small style="color:#64748b;">' + x.playlist + ' &mdash; Live: ' + tglIndo(x.mulai, true) + ' s/d ' + tglIndo(x.selesai, true) + '</small></td><td class="c">' + x.durasi + '</td><td class="c">' + x.periode + '</td><td>' + rpCell(x.rate) + '</td><td>' + rpCell(x.sub) + '</td></tr>';
+    tb.innerHTML += `<tr><td class="c">${i+1}</td><td><b>${x.artis} &mdash; ${x.lagu}</b><br><small style="color:#64748b;">${x.playlist} &mdash; Live: ${tglIndo(x.mulai, true)} s/d ${tglIndo(x.selesai, true)}</small></td><td class="c">${x.durasi}</td><td class="c">${x.periode}</td><td>${rpCell(x.rate)}</td><td>${rpCell(x.sub)}</td></tr>`;
   });
   document.getElementById('iCount').textContent = items.length;
-  var elTot = document.getElementById('iTotal');
-  if (elTot && elTot.parentNode) {
-    elTot.parentNode.innerHTML = '<span style="margin-right:18px;">Rp</span><span id="iTotal">' + Number(tot).toLocaleString('id-ID') + '</span>';
-  }
+  document.getElementById('iTotal').innerHTML = `<span style="margin-right:18px;">Rp</span><span>${Number(tot).toLocaleString('id-ID')}</span>`;
   document.getElementById('iTerbilang').textContent = tot ? (terbilang(tot).trim() + ' Rupiah') : 'Nol Rupiah';
-};
-if (typeof selInv !== 'undefined') selInv.onchange = renderInv;
-
-(function() {
-  var foot = document.querySelector('.inv-foot');
-  if (foot) {
-    var teksDiv = foot.querySelector('div');
-    var imgQris = foot.querySelector('img');
-    if (teksDiv) {
-    }
-      }
+}
+window.addEventListener('load', function() {
   var area = document.getElementById('printArea');
-  var ft = document.getElementById('ftPmStudio');
-  if (area && ft) {
-    area.style.display = 'flex';
-    area.style.flexDirection = 'column';
-    area.style.minHeight = '265mm';
-    var now = new Date();
-    var todayStr = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-    ft.style.cssText = 'margin-top:auto; padding-top:14px; text-align:center; font-size:11.5px; color:#1e293b;';
-    ft.innerHTML = 'Terima kasih atas kerja samanya dengan PM Studio. Document Generated Automatically &mdash; <strong>' + tglIndo(todayStr, true).replace(/ /g, '-') + '</strong>';
-  }
-})();
+  if (!area) return;
+  area.style.display = 'flex';
+  area.style.flexDirection = 'column';
+  area.style.minHeight = '270mm';
+
+  var lama = document.getElementById('ftPmStudio');
+  if (lama) lama.remove();
+
+  var bln = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  var d = new Date();
+  var tgl = String(d.getDate()).padStart(2, '0') + '-' + bln[d.getMonth()] + '-' + d.getFullYear();
+
+  var ft = document.createElement('div');
+  ft.id = 'ftPmStudio';
+  ft.style.cssText = 'margin-top:auto; padding-top:14px; text-align:center; font-size:11.5px; color:#1e293b; width:100%;';
+  ft.innerHTML = 'Terima kasih atas kerja samanya dengan PM Studio. Document Generated Automatically &mdash; <strong>' + tgl + '</strong>';
+  area.appendChild(ft);
+});
 
