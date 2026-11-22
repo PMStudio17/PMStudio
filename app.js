@@ -104,15 +104,82 @@ function hapusClient(id) {
   }
 }
 
+function tglPendek(str) {
+  if (!str || str === '-') return '-';
+  var d = new Date(str + 'T00:00:00');
+  if (isNaN(d)) return str;
+  var bln = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  return String(d.getDate()).padStart(2, '0') + '-' + bln[d.getMonth()] + '-' + String(d.getFullYear()).slice(-2);
+}
+
+function tglAngka(str) {
+  if (!str || str === '-') return '-';
+  var p = str.split('-');
+  return p.length === 3 ? (p[2] + '/' + p[1] + '/' + p[0].slice(-2)) : str;
+}
+
 function renderRekap() {
-  urut();
-  const tb = document.getElementById('tbRekap'); tb.innerHTML = '';
-  let tot = 0;
-  db.forEach((x, i) => {
-    tot += Number(x.sub);
-    tb.innerHTML += `<tr><td class="c">${i+1}</td><td><b>${x.noInv}</b></td><td>${x.tglInv||'-'}</td><td>${x.client}</td><td>${x.email}</td><td>${x.type}</td><td>${x.artis}</td><td>${x.lagu}</td><td class="c">${x.durasi}</td><td>${x.mulai||'-'}</td><td><b>${x.selesai||'-'}</b></td><td class="r">${rp(x.rate)}</td><td class="r">${rp(x.sub)}</td><td>${x.periode}</td><td>${x.playlist}</td><td class="c"><button type="button" onclick="hapus(${x.id})">X</button></td></tr>`;
+  var urutInv = db.slice().sort(function(a, b) {
+    return (b.tglInv || '').localeCompare(a.tglInv || '') || a.noInv.localeCompare(b.noInv) || (Number(a.id) - Number(b.id));
   });
-  document.getElementById('totRekap').innerHTML = `<strong>${rp(tot)}</strong>`;
+
+  var tb = document.getElementById('tbRekap');
+  if (!tb) return;
+  tb.innerHTML = '';
+
+  var tot = 0;
+  var noGrup = 0;
+  var i = 0;
+
+  while (i < urutInv.length) {
+    var x = urutInv[i];
+    var kunci = (x.tglInv || '') + '|' + x.noInv + '|' + x.client;
+    var jumlahBaris = 1;
+
+    while (i + jumlahBaris < urutInv.length) {
+      var y = urutInv[i + jumlahBaris];
+      var kunciBerikut = (y.tglInv || '') + '|' + y.noInv + '|' + y.client;
+      if (kunciBerikut === kunci) {
+        jumlahBaris++;
+      } else {
+        break;
+      }
+    }
+
+    noGrup++;
+
+    for (var j = 0; j < jumlahBaris; j++) {
+      var item = urutInv[i + j];
+      tot += Number(item.sub);
+      var namaPlaylistRingkas = (item.playlist || '').replace(' Playlist Placement', '');
+      var tr = '<tr>';
+
+        if (j === 0) {
+        tr += '<td class="c" rowspan="' + jumlahBaris + '" style="vertical-align:top;">' + noGrup + '</td>';
+        tr += '<td class="c" rowspan="' + jumlahBaris + '" style="vertical-align:top;">' + tglAngka(item.tglInv) + '</td>';
+        tr += '<td rowspan="' + jumlahBaris + '" style="vertical-align:top;">' + item.noInv + '</td>';
+        tr += '<td rowspan="' + jumlahBaris + '" style="vertical-align:top;">' + item.client + '</td>';
+      }
+
+
+      tr += '<td>' + item.artis + '</td>';
+      tr += '<td>' + item.lagu + '</td>';
+      tr += '<td class="c">' + item.durasi + ' ' + item.periode + '</td>';
+      tr += '<td class="c">' + tglPendek(item.mulai) + '</td>';
+      tr += '<td class="c"><b>' + tglPendek(item.selesai) + '</b></td>';
+      tr += '<td class="r">' + rp(item.rate) + '</td>';
+      tr += '<td class="r">' + rp(item.sub) + '</td>';
+      tr += '<td>' + namaPlaylistRingkas + '</td>';
+      tr += '<td class="c"><button type="button" onclick="hapus(' + item.id + ')">X</button></td>';
+      tr += '</tr>';
+
+      tb.innerHTML += tr;
+    }
+
+    i += jumlahBaris;
+  }
+
+  document.getElementById('totRekap').innerHTML = '<strong>' + rp(tot) + '</strong>';
 }
 
 function hapus(id) { if (confirm('Hapus?')) { db = db.filter(x => x.id !== id); localStorage.setItem(KEY, JSON.stringify(db)); renderRekap(); } }
@@ -170,7 +237,6 @@ function renderInv() {
   var sel = document.getElementById('fClient');
   if (!sel) return;
 
-  // Ubah <select> menjadi 1 kotak <input> yang punya tombol panah dropdown + search
   var inp = document.createElement('input');
   inp.type = 'text';
   inp.id = 'fClient';
@@ -192,23 +258,42 @@ function renderInv() {
   list.style.cssText = 'position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #cbd5e1; border-radius:4px; max-height:150px; overflow-y:auto; z-index:99; display:none; box-shadow:0 4px 8px rgba(0,0,0,0.1);';
   boxWrap.appendChild(list);
 
+  var idxAktif = -1;
+  var hasilTampil = [];
+
+  function pilihItem(c) {
+    inp.value = c.nama;
+    document.getElementById('fEmail').value = c.email;
+    document.getElementById('fType').value = c.type;
+    list.style.display = 'none';
+    idxAktif = -1;
+  }
+
+  function sorotItem() {
+    var items = list.children;
+    for (var i = 0; i < items.length; i++) {
+      if (i === idxAktif) {
+        items[i].style.background = '#0077c8';
+        items[i].style.color = '#fff';
+        items[i].scrollIntoView({ block: 'nearest' });
+      } else {
+        items[i].style.background = '#fff';
+        items[i].style.color = '#1e293b';
+      }
+    }
+  }
+
   function showList(q) {
-    var hasil = dbC.filter(function(c) { return c.nama.toLowerCase().indexOf((q || '').toLowerCase()) !== -1; });
+    hasilTampil = dbC.filter(function(c) { return c.nama.toLowerCase().indexOf((q || '').toLowerCase()) !== -1; });
     list.innerHTML = '';
-    if (!hasil.length) { list.style.display = 'none'; return; }
-    hasil.forEach(function(c) {
+    idxAktif = -1;
+    if (!hasilTampil.length) { list.style.display = 'none'; return; }
+    hasilTampil.forEach(function(c, i) {
       var opt = document.createElement('div');
       opt.textContent = c.nama;
       opt.style.cssText = 'padding:7px 9px; cursor:pointer; font-size:13px;';
-      opt.onmouseover = function() { opt.style.background = '#0077c8'; opt.style.color = '#fff'; };
-      opt.onmouseout = function() { opt.style.background = '#fff'; opt.style.color = '#1e293b'; };
-      opt.onmousedown = function(e) {
-        e.preventDefault();
-        inp.value = c.nama;
-        document.getElementById('fEmail').value = c.email;
-        document.getElementById('fType').value = c.type;
-        list.style.display = 'none';
-      };
+      opt.onmouseover = function() { idxAktif = i; sorotItem(); };
+      opt.onmousedown = function(e) { e.preventDefault(); pilihItem(c); };
       list.appendChild(opt);
     });
     list.style.display = 'block';
@@ -216,6 +301,23 @@ function renderInv() {
 
   inp.onfocus = function() { showList(''); };
   inp.oninput = function() { showList(inp.value); };
+  inp.onkeydown = function(e) {
+    if (list.style.display !== 'block' || !hasilTampil.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      idxAktif = (idxAktif + 1) % hasilTampil.length;
+      sorotItem();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      idxAktif = (idxAktif - 1 + hasilTampil.length) % hasilTampil.length;
+      sorotItem();
+    } else if (e.key === 'Enter' && idxAktif >= 0) {
+      e.preventDefault();
+      pilihItem(hasilTampil[idxAktif]);
+    } else if (e.key === 'Escape') {
+      list.style.display = 'none';
+    }
+  };
   inp.onblur = function() { setTimeout(function() { list.style.display = 'none'; }, 150); };
 })();
 
@@ -310,3 +412,123 @@ window.addEventListener('load', function() {
   area.appendChild(ft);
 });
 
+// === SELECT + SEARCH & URUT TERBARU UNTUK PILIH INVOICE ===
+(function() {
+  if (typeof selInv === 'undefined' || !selInv) return;
+
+  selInv.style.display = 'none';
+
+  var boxWrap = document.createElement('div');
+  boxWrap.style.cssText = 'position:relative; display:inline-block; min-width:230px;';
+  selInv.parentNode.insertBefore(boxWrap, selInv);
+
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.placeholder = 'Pilih / ketik No Invoice...';
+  inp.autocomplete = 'off';
+  inp.style.cssText = 'width:100%; padding:7px 26px 7px 8px; border:1px solid #cbd5e1; border-radius:4px; font-size:13px;';
+  boxWrap.appendChild(inp);
+
+  var arrow = document.createElement('span');
+  arrow.innerHTML = '&#9662;';
+  arrow.style.cssText = 'position:absolute; right:8px; top:50%; transform:translateY(-50%); pointer-events:none; color:#475569; font-size:12px;';
+  boxWrap.appendChild(arrow);
+
+  var list = document.createElement('div');
+  list.style.cssText = 'position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #cbd5e1; border-radius:4px; max-height:170px; overflow-y:auto; z-index:99; display:none; box-shadow:0 4px 8px rgba(0,0,0,0.1);';
+  boxWrap.appendChild(list);
+
+  var idxAktif = -1;
+  var hasilTampil = [];
+  var daftarInvTerbaru = [];
+
+  function ambilDaftarTerbaru() {
+    var urutId = db.slice().sort(function(a, b) { return Number(b.id) - Number(a.id); });
+    var unik = [];
+    urutId.forEach(function(x) {
+      if (x.noInv && unik.indexOf(x.noInv) === -1) unik.push(x.noInv);
+    });
+    daftarInvTerbaru = unik;
+    return unik;
+  }
+
+  function pilihInv(no) {
+    inp.value = no;
+    selInv.value = no;
+    renderInv();
+    list.style.display = 'none';
+    idxAktif = -1;
+  }
+
+  function sorotInv() {
+    var items = list.children;
+    for (var i = 0; i < items.length; i++) {
+      if (i === idxAktif) {
+        items[i].style.background = '#0077c8';
+        items[i].style.color = '#fff';
+        items[i].scrollIntoView({ block: 'nearest' });
+      } else {
+        items[i].style.background = '#fff';
+        items[i].style.color = '#1e293b';
+      }
+    }
+  }
+
+  function showInvList(q) {
+    ambilDaftarTerbaru();
+    hasilTampil = daftarInvTerbaru.filter(function(no) {
+      return no.toLowerCase().indexOf((q || '').toLowerCase()) !== -1;
+    });
+    list.innerHTML = '';
+    idxAktif = -1;
+    if (!hasilTampil.length) { list.style.display = 'none'; return; }
+    hasilTampil.forEach(function(no, i) {
+      var opt = document.createElement('div');
+      opt.textContent = no;
+      opt.style.cssText = 'padding:7px 9px; cursor:pointer; font-size:13px;';
+      opt.onmouseover = function() { idxAktif = i; sorotInv(); };
+      opt.onmousedown = function(e) { e.preventDefault(); pilihInv(no); };
+      list.appendChild(opt);
+    });
+    list.style.display = 'block';
+  }
+
+  var muatInvLama = muatInv;
+  muatInv = function() {
+    muatInvLama();
+    var terbaru = ambilDaftarTerbaru();
+    if (terbaru.length) {
+      selInv.innerHTML = '';
+      terbaru.forEach(function(no) {
+        var o = document.createElement('option');
+        o.value = no;
+        o.textContent = no;
+        selInv.appendChild(o);
+      });
+      selInv.value = terbaru[0];
+      inp.value = terbaru[0];
+      renderInv();
+    }
+  };
+
+  inp.onfocus = function() { showInvList(''); };
+  inp.oninput = function() { showInvList(inp.value); };
+  inp.onkeydown = function(e) {
+    if (list.style.display !== 'block' || !hasilTampil.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      idxAktif = (idxAktif + 1) % hasilTampil.length;
+      sorotInv();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      idxAktif = (idxAktif - 1 + hasilTampil.length) % hasilTampil.length;
+      sorotInv();
+    } else if (e.key === 'Enter' && idxAktif >= 0) {
+      e.preventDefault();
+      pilihInv(hasilTampil[idxAktif]);
+    } else if (e.key === 'Escape') {
+      list.style.display = 'none';
+    }
+  };
+  inp.onblur = function() { setTimeout(function() { list.style.display = 'none'; }, 150); };
+})();
