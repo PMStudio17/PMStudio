@@ -51,13 +51,14 @@
   </div>
 
   <div class="tabs">
-    <button type="button" class="tab active" onclick="bukaTab('pInput', this)">1. Input Data</button>
-    <button type="button" class="tab" onclick="bukaTab('pRekap', this)">2. Rekap Keseluruhan</button>
-    <button type="button" class="tab" onclick="bukaTab('pInvoice', this)">3. Output Invoice</button>
-    <button type="button" class="tab" onclick="bukaTab('pLive', this)">4. Rekap Live Lagu</button>
-    <button type="button" class="tab" onclick="bukaTab('pClient', this)">5. Data Client</button>
-    <button type="button" class="tab" onclick="bukaTab('pGaji', this)">6. Breakdown Gaji</button>
-    <button type="button" class="tab" onclick="bukaTab('pSlip', this)">7. Slip Gaji</button>
+    <button type="button" class="tab" onclick="bukaTab('pClient', this)">Data Client</button>
+    <button type="button" class="tab active" onclick="bukaTab('pInput', this)">Input Data</button>
+    <button type="button" class="tab" onclick="bukaTab('pInvoice', this)">Output Invoice</button>
+    <button type="button" class="tab" onclick="bukaTab('pRekap', this)">Placement Playlist</button>
+    <button type="button" class="tab" onclick="bukaTab('pLagu', this)">Report Live Lagu</button>
+    <button type="button" class="tab" onclick="bukaTab('pLive', this)">Saldo Pendapatan</button>
+    <button type="button" class="tab" onclick="bukaTab('pGaji', this)">Breakdown Gaji</button>
+    <button type="button" class="tab" onclick="bukaTab('pSlip', this)">Slip Gaji</button>
   </div>
 
   <div id="pInput" class="panel active">
@@ -170,13 +171,95 @@
     </div>
   </div>
 </div>
-<!-- 4. REKAP LIVE LAGU -->
+
+
+<div id="pLagu" class="panel">
+
+  <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin: 0;">
+    <thead>
+      <tr>
+        <th colspan="6" style="background: #171347; color: #fff; text-align: center; padding: 9px; font-size: 13.5px; letter-spacing: 0.5px;">JUMLAH LAGU LIVE</th>
+      </tr>
+      <tr style="background: #f8fafc; color: #1e293b;">
+        <th style="text-align: center; padding: 8px;">Playlist Placement</th>
+        <th style="text-align: center; padding: 8px; width: 85px;">IND</th>
+        <th style="text-align: center; padding: 8px; width: 85px;">INTER</th>
+        <th style="text-align: center; padding: 8px; width: 120px;">Jml Placement</th>
+        <th style="text-align: center; padding: 8px; width: 105px;">Lagu Murni</th>
+        <th style="text-align: center; padding: 8px; width: 110px;">Jml Lagu PL</th>
+      </tr>
+    </thead>
+            <tbody id="tbJumlahLaguLive">
+          <tr>
+            <td style="padding: 7px 10px;">Main Playlist</td>
+            <td style="text-align: center;"><input type="number" class="in-ind" data-pl="Main" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center;"><input type="number" class="in-inter" data-pl="Main" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center; font-weight: bold;" class="out-pl">0</td>
+            <td style="text-align: center;" class="out-murni">0</td>
+            <td style="text-align: center;"><input type="number" min="0" class="in-tot-pl" data-pl="Main" value="0" oninput="hitungTabelLaguLive(true)" style="width: 65px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 10px;">Secondary Playlist</td>
+            <td style="text-align: center;"><input type="number" class="in-ind" data-pl="Secondary" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center;"><input type="number" class="in-inter" data-pl="Secondary" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center; font-weight: bold;" class="out-pl">0</td>
+            <td style="text-align: center;" class="out-murni">0</td>
+            <td style="text-align: center;"><input type="number" min="0" class="in-tot-pl" data-pl="Secondary" value="0" oninput="hitungTabelLaguLive(true)" style="width: 65px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 10px;">Alternative 1 Playlist</td>
+            <td style="text-align: center;"><input type="number" class="in-ind" data-pl="Alternative 1" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center;"><input type="number" class="in-inter" data-pl="Alternative 1" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center; font-weight: bold;" class="out-pl">0</td>
+            <td style="text-align: center;" class="out-murni">0</td>
+            <td style="text-align: center;"><input type="number" min="0" class="in-tot-pl" data-pl="Alternative 1" value="0" oninput="hitungTabelLaguLive(true)" style="width: 65px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 10px;">Alternative 2 Playlist</td>
+            <td style="text-align: center;"><input type="number" class="in-ind" data-pl="Alternative 2" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center;"><input type="number" class="in-inter" data-pl="Alternative 2" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center; font-weight: bold;" class="out-pl">0</td>
+            <td style="text-align: center;" class="out-murni">0</td>
+            <td style="text-align: center;"><input type="number" min="0" class="in-tot-pl" data-pl="Alternative 2" value="0" oninput="hitungTabelLaguLive(true)" style="width: 65px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 10px;">Alternative 3 Playlist</td>
+            <td style="text-align: center;"><input type="number" class="in-ind" data-pl="Alternative 3" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center;"><input type="number" class="in-inter" data-pl="Alternative 3" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center; font-weight: bold;" class="out-pl">0</td>
+            <td style="text-align: center;" class="out-murni">0</td>
+            <td style="text-align: center;"><input type="number" min="0" class="in-tot-pl" data-pl="Alternative 3" value="0" oninput="hitungTabelLaguLive(true)" style="width: 65px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 7px 10px;">Alternative 4 Playlist</td>
+            <td style="text-align: center;"><input type="number" class="in-ind" data-pl="Alternative 4" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center;"><input type="number" class="in-inter" data-pl="Alternative 4" value="0" readonly style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px; background: #f1f5f9; font-weight: bold;"></td>
+            <td style="text-align: center; font-weight: bold;" class="out-pl">0</td>
+            <td style="text-align: center;" class="out-murni">0</td>
+            <td style="text-align: center;"><input type="number" min="0" class="in-tot-pl" data-pl="Alternative 4" value="0" oninput="hitungTabelLaguLive(true)" style="width: 65px; text-align: center; border: 1px solid #cbd5e1; border-radius: 3px; padding: 3px;"></td>
+          </tr>
+        </tbody>
+
+    <tfoot>
+      <tr style="background: #f8fafc; font-weight: bold;">
+        <td style="padding: 8px 10px;">Jumlah Keseluruhan Lagu Live</td>
+        <td style="text-align: center;" id="totInd">0</td>
+        <td style="text-align: center;" id="totInter">0</td>
+        <td style="text-align: center;" id="totJmlPl">0</td>
+        <td colspan="2" style="background: #fff; border-bottom: none; border-right: none;"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+
+<!-- SALDO PENDAPATAN -->
 <div id="pLive" class="panel">
   <h3 style="margin-top:0;">Rekap Live Lagu</h3>
   <p>Konten Rekap Live Lagu akan tampil di sini.</p>
 </div>
 
-<!-- 5. DATA CLIENT -->
+<!--DATA CLIENT -->
 <div id="pClient" class="panel">
   <h3 style="margin-top:0;">Database Client</h3>
   <div class="grid">
@@ -206,6 +289,7 @@
     </table>
   </div>
 </div>
+
 <!-- 6. BREAKDOWN GAJI -->
 <div id="pGaji" class="panel">
   <h3 style="margin-top:0;">Breakdown Gaji</h3>
@@ -219,5 +303,281 @@
 </div>
 
 <script src="app.js"></script>
+
+
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  var pLive = document.getElementById('pLive');
+  if (!pLive) return;
+
+  pLive.innerHTML = '' +
+    '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">' +
+      '<h3 style="margin:0;">REKAP LIVE LAGU &amp; SALDO PLAYLIST</h3>' +
+      '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">' +
+        '<input type="text" id="cariLive" placeholder="Cari client / artis / lagu..." oninput="renderLive()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">' +
+        '<select id="filterStatusLive" onchange="renderLive()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">' +
+          '<option value="ALL">Semua Status</option>' +
+          '<option value="LEWAT">&#128680; Lewat Deadline (Belum Take Out)</option>' +
+          '<option value="AMAN">&#9203; Masih Aktif (AMAN)</option>' +
+          '<option value="SELESAI">&#9989; Sudah Selesai (SELESAI)</option>' +
+        '</select>' +
+        '<div style="background:#dcfce7; border:1px solid #86efac; padding:5px 10px; border-radius:4px; font-size:12px; font-weight:bold; color:#166534;">' +
+          'Saldo Awal: Rp <input type="text" id="saldoAwalLive" value="0" onchange="simpanSaldoAwal()" style="width:110px; padding:3px 6px; border:1px solid #86efac; border-radius:3px; font-weight:bold; text-align:right;">' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="tbl-wrap"><table><thead><tr>' +
+      '<th class="c">JOIN DATE</th><th class="c">EXPIRED DATE</th><th class="c">STATUS &amp; AKSI</th><th>NAMA ARTIS</th>' +
+      '<th class="c">JUMLAH LAGU</th><th class="c">PLAYLIST</th><th class="c">NOMINAL</th><th class="c">ADMIN / PENARIKAN</th><th class="c">SALDO</th>' +
+    '</tr></thead><tbody id="tbLive"></tbody></table></div>';
+
+  window.dbAdminLive = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{"saldoAwal":0,"admin":{},"selesai":{}}');
+  if (!window.dbAdminLive.selesai) window.dbAdminLive.selesai = {};
+
+  function parseAngkaID(val) {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    var bersih = String(val).trim().replace(/\./g, '').replace(',', '.');
+    var num = parseFloat(bersih);
+    return isNaN(num) ? 0 : num;
+  }
+
+  function formatInputID(val) {
+    var num = parseAngkaID(val);
+    if (!num) return '';
+    var hasDesimal = String(val).indexOf(',') !== -1 || (num % 1 !== 0);
+    return num.toLocaleString('id-ID', hasDesimal ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : {});
+  }
+
+  var elSaldoAwal = document.getElementById('saldoAwalLive');
+  elSaldoAwal.value = window.dbAdminLive.saldoAwal ? formatInputID(window.dbAdminLive.saldoAwal) : '0';
+
+  window.simpanSaldoAwal = function() {
+    var angka = parseAngkaID(elSaldoAwal.value);
+    window.dbAdminLive.saldoAwal = angka;
+    elSaldoAwal.value = angka ? formatInputID(angka) : '0';
+    localStorage.setItem('pms_admin_live_v1', JSON.stringify(window.dbAdminLive));
+    window.renderLive();
+  };
+
+  window.ubahAdminLive = function(kunci, val) {
+    window.dbAdminLive.admin[kunci] = parseAngkaID(val);
+    localStorage.setItem('pms_admin_live_v1', JSON.stringify(window.dbAdminLive));
+    window.renderLive();
+  };
+
+  window.toggleSelesaiLive = function(kunci) {
+    if (!window.dbAdminLive.selesai) window.dbAdminLive.selesai = {};
+    window.dbAdminLive.selesai[kunci] = !window.dbAdminLive.selesai[kunci];
+    localStorage.setItem('pms_admin_live_v1', JSON.stringify(window.dbAdminLive));
+    window.renderLive();
+  };
+
+  window.renderLive = function() {
+    var tb = document.getElementById('tbLive');
+    if (!tb) return;
+    tb.innerHTML = '';
+
+    var sumberDb = (typeof db !== 'undefined' && Array.isArray(db))
+      ? db
+      : JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+
+    var q = (document.getElementById('cariLive').value || '').toLowerCase().trim();
+    var fStat = document.getElementById('filterStatusLive').value || 'ALL';
+
+    var urut = sumberDb.slice().sort(function(a, b) {
+      return (a.selesai || '9999-12-31').localeCompare(b.selesai || '9999-12-31')
+          || (a.mulai || '').localeCompare(b.mulai || '')
+          || (Number(a.id) - Number(b.id));
+    });
+
+    var grupMap = {}, daftarKunci = [];
+    urut.forEach(function(x) {
+      var kunci = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+      var plBersih = (x.playlist || 'Main').replace(' Playlist Placement', '').trim();
+      if (!grupMap[kunci]) {
+        grupMap[kunci] = { kunci: kunci, client: x.client, mulai: x.mulai, selesai: x.selesai, playlist: plBersih, playlists: [], items: [], nominal: 0 };
+        daftarKunci.push(kunci);
+      }
+      if (grupMap[kunci].playlists.indexOf(plBersih) === -1) {
+        grupMap[kunci].playlists.push(plBersih);
+      }
+      grupMap[kunci].items.push(x);
+      grupMap[kunci].nominal += Number(x.sub || 0);
+    });
+
+    var now = new Date(); now.setHours(0, 0, 0, 0);
+    var saldo = parseAngkaID(window.dbAdminLive.saldoAwal || 0);
+
+    function fmtTgl(s) {
+      if (!s || s === '-') return '-';
+      var p = s.split('-');
+      return p.length === 3 ? (p[2] + '-' + p[1] + '-' + p[0]) : s;
+    }
+    function fmtRp(n) {
+      var num = Number(n || 0);
+      var opts = (num % 1 !== 0) ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : {};
+      return '<div style="display:flex;justify-content:space-between;gap:6px;"><span>Rp</span><span>' + num.toLocaleString('id-ID', opts) + '</span></div>';
+    }
+
+    daftarKunci.forEach(function(kunci) {
+      var g = grupMap[kunci];
+      var adm = parseAngkaID(window.dbAdminLive.admin[kunci] || 0);
+      saldo = Math.round((saldo + g.nominal - adm) * 100) / 100;
+
+      var sudahSelesaiManual = !!(window.dbAdminLive.selesai && window.dbAdminLive.selesai[kunci]);
+      var kodeStat = 'AMAN';
+      var badge = '';
+      var warnaTeksArtis = '#1e293b';
+      var kunciEsc = kunci.replace(/'/g, "\\'");
+
+      if (sudahSelesaiManual) {
+        kodeStat = 'SELESAI';
+        badge = '<div style="color:#166534;font-weight:bold;font-size:12px;">&#9989; SELESAI</div>' +
+                '<button type="button" onclick="toggleSelesaiLive(\'' + kunciEsc + '\')" style="margin-top:4px;padding:2px 8px;font-size:10.5px;border:1px solid #cbd5e1;background:#f8fafc;color:#475569;border-radius:3px;cursor:pointer;">Batalkan</button>';
+      } else if (g.selesai) {
+        var sisa = Math.ceil((new Date(g.selesai + 'T00:00:00') - now) / 86400000);
+        if (sisa <= 0) {
+          kodeStat = 'LEWAT';
+          warnaTeksArtis = '#dc2626';
+          badge = '<div style="color:#dc2626;font-weight:bold;font-size:12px;">&#128680; LEWAT DEADLINE (' + sisa + ' Hari Lagi)</div>' +
+                  '<button type="button" onclick="toggleSelesaiLive(\'' + kunciEsc + '\')" style="margin-top:4px;padding:3px 9px;font-size:11px;border:none;background:#16a34a;color:#fff;font-weight:bold;border-radius:3px;cursor:pointer;">&#10003; Tandai Selesai</button>';
+        } else {
+          kodeStat = 'AMAN';
+          badge = '<div style="color:#854d0e;font-weight:bold;font-size:12px;">&#9203; AMAN (' + sisa + ' Hari Lagi)</div>' +
+                  '<button type="button" onclick="toggleSelesaiLive(\'' + kunciEsc + '\')" style="margin-top:4px;padding:2px 8px;font-size:10.5px;border:1px solid #cbd5e1;background:#fff;color:#475569;border-radius:3px;cursor:pointer;">Selesaikan Awal</button>';
+        }
+      }
+
+      var listLagu = g.items.map(function(it, idx) { return (idx + 1) + '. ' + it.artis + ' - ' + it.lagu; }).join('<br>');
+      var daftarPl = (g.playlists && g.playlists.length) ? g.playlists : [g.playlist || 'Main'];
+      var teksCari = (g.client + ' ' + listLagu + ' ' + daftarPl.join(' ')).toLowerCase();
+
+      if ((!q || teksCari.indexOf(q) !== -1) && (fStat === 'ALL' || fStat === kodeStat)) {
+        var badgesPlHtml = daftarPl.map(function(pl) {
+          var pLow = pl.toLowerCase();
+          var warna = 'background:#dbeafe;color:#1e40af;';
+          if (pLow.indexOf('secondary') !== -1) warna = 'background:#fef3c7;color:#92400e;';
+          else if (pLow.indexOf('alternative') !== -1) warna = 'background:#f3e8ff;color:#6b21a8;';
+          return '<span style="' + warna + 'padding:3px 10px;border-radius:12px;font-weight:bold;font-size:11px;display:inline-block;margin:2px;">' + pl + '</span>';
+        }).join('<br>');
+
+        var nilaiTampilAdm = adm ? formatInputID(adm) : '';
+
+        tb.innerHTML += '<tr>' +
+          '<td class="c" style="vertical-align:middle;">' + fmtTgl(g.mulai) + '</td>' +
+          '<td class="c" style="vertical-align:middle;">' + fmtTgl(g.selesai) + '</td>' +
+          '<td class="c" style="vertical-align:middle;">' + badge + '</td>' +
+          '<td style="vertical-align:middle;line-height:1.5;color:' + warnaTeksArtis + ';"><strong>' + g.client + ' :</strong><br>' + listLagu + '</td>' +
+          '<td class="c" style="vertical-align:middle;font-weight:bold;">' + g.items.length + '</td>' +
+          '<td class="c" style="vertical-align:middle;">' + badgesPlHtml + '</td>' +
+          '<td style="vertical-align:middle;">' + fmtRp(g.nominal) + '</td>' +
+          '<td style="vertical-align:middle;"><div style="display:flex;align-items:center;justify-content:space-between;gap:4px;"><span>Rp</span><input type="text" value="' + nilaiTampilAdm + '" placeholder="0" onchange="ubahAdminLive(\'' + kunciEsc + '\', this.value)" style="width:90px;padding:3px 5px;border:1px solid #cbd5e1;border-radius:3px;text-align:right;font-size:12px;"></div></td>' +
+          '<td style="vertical-align:middle;font-weight:bold;">' + fmtRp(saldo) + '</td>' +
+        '</tr>';
+      }
+    });
+  };
+
+  window.renderLive();
+});
+</script>
+
+<script>
+function jalankanHitungLaguLive(simpan) {
+  var sumberDb = (typeof db !== 'undefined' && Array.isArray(db))
+    ? db
+    : JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+
+  var savedTotPl = JSON.parse(localStorage.getItem('pms_tot_lagu_pl_v1') || '{}');
+
+  var now = new Date();
+  var today = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+  var rekap = {
+    'Main': { ind: 0, inter: 0 },
+    'Secondary': { ind: 0, inter: 0 },
+    'Alternative 1': { ind: 0, inter: 0 },
+    'Alternative 2': { ind: 0, inter: 0 },
+    'Alternative 3': { ind: 0, inter: 0 },
+    'Alternative 4': { ind: 0, inter: 0 }
+  };
+
+  sumberDb.forEach(function(x) {
+    var joinDate = x.mulai || '';
+    var expDate = x.selesai || '';
+    if ((!joinDate || today >= joinDate) && (!expDate || today < expDate)) {
+      var plBersih = (x.playlist || 'Main').replace(' Playlist Placement', '').trim();
+      if (!rekap[plBersih]) plBersih = 'Main';
+      if ((x.noInv || '').toUpperCase().indexOf('INT') !== -1) rekap[plBersih].inter += 1;
+      else rekap[plBersih].ind += 1;
+    }
+  });
+
+  var totInd = 0, totInter = 0, totPl = 0;
+
+  document.querySelectorAll('#tbJumlahLaguLive tr').forEach(function(tr) {
+    var inpTotPl = tr.querySelector('.in-tot-pl');
+    if (!inpTotPl) return;
+    inpTotPl.type = 'text';
+    inpTotPl.inputMode = 'numeric';
+    inpTotPl.style.padding = '3px 0';
+    inpTotPl.style.textAlign = 'center';
+
+    var pl = inpTotPl.dataset.pl;
+    var vInd = rekap[pl] ? rekap[pl].ind : 0;
+    var vInter = rekap[pl] ? rekap[pl].inter : 0;
+
+    if (!simpan && savedTotPl[pl] !== undefined) {
+      inpTotPl.value = savedTotPl[pl];
+    }
+    var vTotPl = parseInt(inpTotPl.value, 10) || 0;
+    if (simpan) savedTotPl[pl] = vTotPl;
+
+    var inpInd = tr.querySelector('.in-ind');
+    var inpInter = tr.querySelector('.in-inter');
+    if (inpInd) { inpInd.type = 'text'; inpInd.style.padding = '3px 0'; inpInd.style.textAlign = 'center'; inpInd.style.fontWeight = 'normal'; inpInd.value = vInd; }
+    if (inpInter) { inpInter.type = 'text'; inpInter.style.padding = '3px 0'; inpInter.style.textAlign = 'center'; inpInter.style.fontWeight = 'normal'; inpInter.value = vInter; }
+
+    var jmlPlacement = vInd + vInter;
+    var laguMurni = Math.max(0, vTotPl - jmlPlacement);
+
+    var elPl = tr.querySelector('.out-pl');
+    var elMurni = tr.querySelector('.out-murni');
+    if (elPl) { elPl.textContent = jmlPlacement; elPl.style.fontWeight = 'bold'; }
+    if (elMurni) { elMurni.textContent = laguMurni; elMurni.style.fontWeight = 'bold'; }
+
+    totInd += vInd;
+    totInter += vInter;
+    totPl += jmlPlacement;
+  });
+
+  if (document.getElementById('totInd')) document.getElementById('totInd').textContent = totInd;
+  if (document.getElementById('totInter')) document.getElementById('totInter').textContent = totInter;
+  if (document.getElementById('totJmlPl')) document.getElementById('totJmlPl').textContent = totPl;
+
+  if (simpan) localStorage.setItem('pms_tot_lagu_pl_v1', JSON.stringify(savedTotPl));
+}
+
+document.querySelectorAll('#tbJumlahLaguLive .in-tot-pl').forEach(function(inp) {
+  inp.oninput = function() { jalankanHitungLaguLive(true); };
+});
+
+if (typeof bukaTab === 'function') {
+  var bukaTabAsli = bukaTab;
+  bukaTab = function(id, btn) {
+    bukaTabAsli(id, btn);
+    if (id === 'pLagu') jalankanHitungLaguLive(false);
+	    if (id === 'pLive' && typeof window.renderLive === 'function') window.renderLive();
+  };
+}
+
+jalankanHitungLaguLive(false);
+</script>
+
+
+</script>
+
+
 </body>
 </html>
