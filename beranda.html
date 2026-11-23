@@ -57,7 +57,7 @@
     <button type="button" class="tab" onclick="bukaTab('pRekap', this)">Placement Playlist</button>
     <button type="button" class="tab" onclick="bukaTab('pLagu', this)">Report Live Lagu</button>
     <button type="button" class="tab" onclick="bukaTab('pLive', this)">Saldo Pendapatan</button>
-    <button type="button" class="tab" onclick="bukaTab('pGaji', this)">Breakdown Gaji</button>
+    <button type="button" class="tab" onclick="bukaTab('pDamn', this)">Data Management</button>
     <button type="button" class="tab" onclick="bukaTab('pSlip', this)">Slip Gaji</button>
   </div>
 
@@ -83,7 +83,7 @@
 </select></div>
       <div class="fg"><label>Join Date (Live Mulai)</label><input type="date" id="fMulai"></div>
       <div class="fg"><label>Expired (Live Selesai)</label><input type="date" id="fSelesai"></div>
-      <div class="fg"><label>Rate (Rp)</label><input type="number" id="fRate" placeholder="600000" oninput="hitungSub()"></div>
+      <div class="fg"><label>Rate</label><input type="number" id="fRate" placeholder="600000" oninput="hitungSub()"></div>
       <div class="fg"><label>Subtotal</label><input type="text" id="fSub" value="Rp 0" readonly></div>      
     </div>
     <button type="button" class="btn" onclick="simpanData()">+ Simpan ke Rekap &amp; Invoice</button>
@@ -290,16 +290,30 @@
   </div>
 </div>
 
-<!-- 6. BREAKDOWN GAJI -->
-<div id="pGaji" class="panel">
+<!-- 6. Data Management -->
+<div id="pDamn" class="panel">
   <h3 style="margin-top:0;">Breakdown Gaji</h3>
-  <p>Konten Breakdown Gaji akan tampil di sini.</p>
+  <p>Konten Data Managemrn akan tampil di sini.</p>
 </div>
 
 <!-- 7. SLIP GAJI -->
+<!-- 7. SLIP GAJI -->
 <div id="pSlip" class="panel">
-  <h3 style="margin-top:0;">Slip Gaji</h3>
-  <p>Konten Slip Gaji akan tampil di sini.</p>
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <label style="font-weight:bold; font-size:12px;">Periode:</label>
+      <input type="month" id="sBulan" value="2026-11" onchange="hitungSlipSimple()" style="padding:5px 8px; border:1px solid #cbd5e1; border-radius:4px;">
+      <label style="font-weight:bold; font-size:12px;">Admin Penarikan (Rp):</label>
+      <input type="number" id="sAdm" value="0" oninput="hitungSlipSimple()" style="width:120px; padding:5px 8px; border:1px solid #cbd5e1; border-radius:4px;">
+      <label style="font-weight:bold; font-size:12px;">Tgl TTD:</label>
+      <input type="text" id="sTgl" value="30 November 2026" oninput="hitungSlipSimple()" style="width:140px; padding:5px 8px; border:1px solid #cbd5e1; border-radius:4px;">
+    </div>
+    <button type="button" class="btn btn-sm" onclick="cetakSlipBersih()" style="background:#0077c8; color:#fff;">&#128424; Print / Save PDF</button>
+
+  </div>
+
+  <!-- 2 SLIP GAJI BERDAMPINGAN -->
+  <div id="box2Slip" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;"></div>
 </div>
 
 <script src="app.js"></script>
@@ -328,7 +342,7 @@ window.addEventListener('DOMContentLoaded', function() {
     '</div>' +
     '<div class="tbl-wrap"><table><thead><tr>' +
       '<th class="c">JOIN DATE</th><th class="c">EXPIRED DATE</th><th class="c">STATUS &amp; AKSI</th><th>NAMA ARTIS</th>' +
-      '<th class="c">JUMLAH LAGU</th><th class="c">PLAYLIST</th><th class="c">NOMINAL</th><th class="c">ADMIN / PENARIKAN</th><th class="c">SALDO</th>' +
+      '<th class="c">JUMLAH LAGU</th><th class="c">PLAYLIST</th><th class="c">NOMINAL</th><th class="c">ADMIN</th><th class="c">NET INCOME</th>' +
     '</tr></thead><tbody id="tbLive"></tbody></table></div>';
 
   window.dbAdminLive = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{"saldoAwal":0,"admin":{},"selesai":{}}');
@@ -574,8 +588,968 @@ if (typeof bukaTab === 'function') {
 
 jalankanHitungLaguLive(false);
 </script>
+</script>
 
 
+<script>
+(function() {
+  var KEY_MGMT = 'pms_management_v1';
+  var defaultMgmt = [
+    { id: 1, nim: '202609001', nama: 'Nona Alya', jabatan: 'Human Resources', persen: 50 },
+    { id: 2, nim: '202609002', nama: 'Botol Yakult', jabatan: 'Human Error', persen: 50 }
+  ];
+  window.dbManagement = JSON.parse(localStorage.getItem(KEY_MGMT) || JSON.stringify(defaultMgmt));
+
+  function simpanMgmt() {
+    localStorage.setItem(KEY_MGMT, JSON.stringify(window.dbManagement));
+  }
+
+  var pDamn = document.getElementById('pDamn');
+  if (pDamn) {
+    pDamn.innerHTML = '' +
+      '<h3 style="margin-top:0;">Database Management &amp; PM Studio</h3>' +
+      '<div class="grid">' +
+        '<div class="fg"><label>NIM</label><input type="text" id="mNim" placeholder="202609003"></div>' +
+        '<div class="fg"><label>Management</label><input type="text" id="mNama" placeholder="Nama Lengkap"></div>' +
+        '<div class="fg"><label>Jabatan</label><input type="text" id="mJabatan" placeholder="Jabatan / Divisi"></div>' +
+        '<div class="fg"><label>Bagian Take Home Pay (%)</label><input type="number" id="mPersen" placeholder="50" min="0" max="100" step="any"></div>' +
+      '</div>' +
+      '<button type="button" class="btn" onclick="tambahManagement()">+ Simpan Data Management</button>' +
+      '<div class="tbl-wrap">' +
+        '<table>' +
+          '<thead><tr><th class="c">No</th><th class="c">NIM</th><th>Management</th><th>Jabatan</th><th class="c">Bagian (%)</th><th class="c">Aksi</th></tr></thead>' +
+          '<tbody id="tbManagement"></tbody>' +
+        '</table>' +
+      '</div>';
+  }
+
+  window.tambahManagement = function() {
+    var nim = document.getElementById('mNim').value.trim();
+    var nama = document.getElementById('mNama').value.trim();
+    var jabatan = document.getElementById('mJabatan').value.trim() || '-';
+    var persen = parseFloat(document.getElementById('mPersen').value) || 0;
+    if (!nim || !nama) return alert('Isi NIM dan Nama Management terlebih dahulu!');
+
+    window.dbManagement.push({ id: Date.now(), nim: nim, nama: nama, jabatan: jabatan, persen: persen });
+    simpanMgmt();
+    document.getElementById('mNim').value = '';
+    document.getElementById('mNama').value = '';
+    document.getElementById('mJabatan').value = '';
+    document.getElementById('mPersen').value = '';
+    window.renderManagement();
+    alert('Data Management tersimpan!');
+  };
+
+  window.hapusManagement = function(id) {
+    if (!confirm('Hapus data ini?')) return;
+    window.dbManagement = window.dbManagement.filter(function(m) { return m.id !== id; });
+    simpanMgmt();
+    window.renderManagement();
+  };
+
+    window.renderManagement = function() {
+    var tb = document.getElementById('tbManagement');
+    if (!tb) return;
+    tb.innerHTML = '';
+
+    window.dbManagement.sort(function(a, b) {
+      return String(a.nim || '').localeCompare(String(b.nim || ''), undefined, { numeric: true });
+    });
+
+    window.dbManagement.forEach(function(m, i) {
+      tb.innerHTML += '<tr>' +
+        '<td class="c">' + (i + 1) + '</td>' +
+        '<td class="c">' + m.nim + '</td>' +
+        '<td><strong>' + m.nama + '</strong></td>' +
+        '<td>' + m.jabatan + '</td>' +
+        '<td class="c"><strong>' + m.persen + '%</strong></td>' +
+        '<td class="c"><button type="button" onclick="hapusManagement(' + m.id + ')">X</button></td>' +
+      '</tr>';
+    });
+  };
+
+
+  window.renderManagement();
+})();
+</script>
+
+<script>
+function hitungSlipSimple() {
+  var box = document.getElementById('box2Slip');
+  if (!box) return;
+
+  var bln = document.getElementById('sBulan').value || '2026-11';
+  var tglTtd = document.getElementById('sTgl').value || '30 November 2026';
+  var admTarik = Number(document.getElementById('sAdm').value) || 0;
+
+  var p = bln.split('-');
+  var thn = p || '';
+  var idxBln = Number(p) - 1;
+  var namaBln = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  var judulPeriode = 'Periode ' + (namaBln[Number(bln.slice(5, 7)) - 1] || '') + ' ' + bln.slice(0, 4);
+  var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+  var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+  var kurs = Number(st.kursUsd || 15800);
+  var admMap = st.admin || {};
+
+  var dbMain = 0, dbSec = 0, dbAlt = 0, dbAdm = 0;
+  var ppMain = 0, ppSec = 0, ppAlt = 0, ppAdm = 0;
+  var cek = {};
+
+  dbList.forEach(function(x) {
+    var dtNext = new Date(Number(bln.slice(0, 4)), Number(bln.slice(5, 7)), 1);
+var blnExp = dtNext.getFullYear() + '-' + String(dtNext.getMonth() + 1).padStart(2, '0');
+if ((x.selesai || '').slice(0, 7) !== blnExp) return;
+
+    var isUsd = (x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+    var pl = (x.playlist || '').toLowerCase();
+    var nom = Number(x.sub || 0);
+
+    if (isUsd) {
+      if (pl.indexOf('secondary') !== -1) ppSec += nom;
+      else if (pl.indexOf('alternative') !== -1) ppAlt += nom;
+      else ppMain += nom;
+    } else {
+      if (pl.indexOf('secondary') !== -1) dbSec += nom;
+      else if (pl.indexOf('alternative') !== -1) dbAlt += nom;
+      else dbMain += nom;
+    }
+
+    var k = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+    if (!cek[k]) {
+      cek[k] = true;
+      var pot = Number(admMap[k] || 0);
+      if (isUsd) ppAdm += pot; else dbAdm += pot;
+    }
+  });
+
+  var totDb = Math.max(0, (dbMain + dbSec + dbAlt) - dbAdm);
+  var totPp = Math.max(0, (ppMain + ppSec + ppAlt) - ppAdm);
+  var konvRp = Math.round(totPp * kurs);
+  var totSemua = Math.max(0, totDb + konvRp - admTarik);
+
+  var mgmt = JSON.parse(localStorage.getItem('pms_management_v1') || '[]')
+    .slice()
+    .sort(function(a, b) { return String(a.nim || '').localeCompare(String(b.nim || ''), undefined, { numeric: true }); })
+    .filter(function(m) { return Number(m.persen) > 0; });
+
+  function rp(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function usd(n) { return '$ ' + Number(n || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  box.innerHTML = '';
+  mgmt.forEach(function(m) {
+    var gaji = Math.round(totSemua * (Number(m.persen) / 100));
+    box.innerHTML += '' +
+      '<div style="background:#fff; border:1.5px solid #000; font-family:Arial,sans-serif; font-size:10.5px; color:#000; break-inside:avoid;">' +
+        '<div style="display:flex; align-items:center; background:#bae6fd; padding:6px 10px; border-bottom:1px solid #000;">' +
+          '<img src="logo1.png" alt="Logo" style="width:55px; height:55px; object-fit:contain; margin-right:8px;">' +
+          '<div style="flex:1; text-align:center; padding-right:55px;">' +
+            '<div style="font-size:13px; font-weight:bold;">PUSTAKA MUSIK STUDIO</div>' +
+            '<div style="font-size:9px; font-style:italic;">Spotify Organic Playlist Curation Services</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:center; padding:4px; border-bottom:1px solid #000; font-weight:bold; font-size:10.5px;">Slip Gaji<br>' + judulPeriode + '</div>' +
+        '<div style="padding:4px 8px; border-bottom:1px solid #000; line-height:1.4;">' +
+          'NIM : ' + m.nim + '<br>Nama : <b>' + m.nama + '</b><br>Jabatan : ' + m.jabatan +
+        '</div>' +
+        '<table style="width:100%; border-collapse:collapse; margin:0; font-size:10px;">' +
+          '<tr><th colspan="2" style="background:#bae6fd; text-align:left; padding:3px 8px;">Dana Bisnis</th></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Main Playlist</td><td style="padding:2.5px 8px; text-align:right;">' + rp(dbMain) + '</td></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Secondary Playlist</td><td style="padding:2.5px 8px; text-align:right;">' + rp(dbSec) + '</td></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Alternative Playlist</td><td style="padding:2.5px 8px; text-align:right;">' + rp(dbAlt) + '</td></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Administrasi</td><td style="padding:2.5px 8px; text-align:right;">' + rp(dbAdm) + '</td></tr>' +
+          '<tr style="font-weight:bold;"><td style="padding:2.5px 8px;">Total Pendapatan Dana Bisnis</td><td style="padding:2.5px 8px; text-align:right;">' + rp(totDb) + '</td></tr>' +
+          '<tr><th colspan="2" style="background:#bae6fd; text-align:left; padding:3px 8px;">Paypal</th></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Main Playlist</td><td style="padding:2.5px 8px; text-align:right;">' + usd(ppMain) + '</td></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Secondary Playlist</td><td style="padding:2.5px 8px; text-align:right;">' + usd(ppSec) + '</td></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Alternative Playlist</td><td style="padding:2.5px 8px; text-align:right;">' + usd(ppAlt) + '</td></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Administrasi</td><td style="padding:2.5px 8px; text-align:right;">' + usd(ppAdm) + '</td></tr>' +
+          '<tr style="font-weight:bold;"><td style="padding:2.5px 8px;">Total Pendapatan Paypal</td><td style="padding:2.5px 8px; text-align:right;">' + usd(totPp) + '</td></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Konversi Rupiah (Kurs ' + rp(kurs) + ')</td><td style="padding:2.5px 8px; text-align:right;">' + rp(konvRp) + '</td></tr>' +
+          '<tr><td style="padding:2.5px 8px;">Admin Penarikan</td><td style="padding:2.5px 8px; text-align:right;">' + rp(admTarik) + '</td></tr>' +
+          '<tr style="font-weight:bold; background:#f1f5f9;"><td style="padding:3px 8px;">Total Pendapatan</td><td style="padding:3px 8px; text-align:right;">' + rp(totSemua) + '</td></tr>' +
+          '<tr style="font-weight:bold; background:#bae6fd;"><td style="padding:4px 8px;">Take Home Pay (' + m.persen + '%)</td><td style="padding:4px 8px; text-align:right;">' + rp(gaji) + '</td></tr>' +
+        '</table>' +
+        '<div style="text-align:right; padding:8px 14px; font-size:9.5px;"><b>' + tglTtd + '<br>Mengetahui<br><br><br><u>All Management</u></b></div>' +
+      '</div>';
+  });
+}
+
+if (typeof bukaTab === 'function') {
+  var bukaTabLama = bukaTab;
+  bukaTab = function(id, btn) {
+    bukaTabLama(id, btn);
+    if (id === 'pSlip') hitungSlipSimple();
+  };
+}
+
+var pSlipEl = document.getElementById('pSlip');
+if (pSlipEl) {
+  var btnPrint = pSlipEl.querySelector('button');
+  if (btnPrint) {
+    btnPrint.removeAttribute('onclick');
+    btnPrint.onclick = function(e) {
+      e.preventDefault();
+      var lama = document.getElementById('stylePrintSlipTemp');
+      if (lama) lama.remove();
+      var styleTemp = document.createElement('style');
+      styleTemp.id = 'stylePrintSlipTemp';
+      styleTemp.textContent =
+        '@media print {' +
+          '@page { size: A4 portrait; margin: 6mm; }' +
+          'body * { visibility: hidden !important; }' +
+          '#box2Slip, #box2Slip * { visibility: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+          '#box2Slip { position: fixed !important; left: 0 !important; top: 0 !important; width: 100% !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; background: #fff !important; z-index: 99999 !important; }' +
+          '#box2Slip > div { font-size: 8.5px !important; line-height: 1.2 !important; }' +
+          '#box2Slip table { font-size: 8.2px !important; }' +
+          '#box2Slip td, #box2Slip th { padding: 2px 5px !important; }' +
+          '#box2Slip img { width: 22px !important; height: 22px !important; }' +
+        '}';
+      document.head.appendChild(styleTemp);
+      window.print();
+      setTimeout(function() {
+        var el = document.getElementById('stylePrintSlipTemp');
+        if (el) el.remove();
+      }, 1000);
+    };
+  }
+}
+
+hitungSlipSimple();
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  function pasang4KotakSaldo() {
+    var pLive = document.getElementById('pLive');
+    if (!pLive) return;
+    var tblWrap = pLive.querySelector('.tbl-wrap');
+    if (!tblWrap || document.getElementById('wrap4KotakSaldo')) return;
+
+    var boxRow = document.createElement('div');
+    boxRow.id = 'wrap4KotakSaldo';
+    boxRow.style.cssText = 'display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin:10px 0 12px 0;';
+
+    boxRow.innerHTML = '' +
+      '<div style="background:#f0fdf4; border:1px solid #86efac; border-radius:6px; padding:8px 12px; min-width:165px;">' +
+        '<div style="font-size:10.5px; font-weight:bold; color:#166534;">SALDO RUPIAH (INV)</div>' +
+        '<div id="kBoxRp" style="font-size:15px; font-weight:bold; color:#14532d; margin-top:3px;">Rp 0</div>' +
+      '</div>' +
+      '<div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:6px; padding:8px 12px; min-width:155px;">' +
+        '<div style="font-size:10.5px; font-weight:bold; color:#92400e;">SALDO DOLLAR (INT)</div>' +
+        '<div id="kBoxUsd" style="font-size:15px; font-weight:bold; color:#b45309; margin-top:3px;">$ 0,00</div>' +
+      '</div>' +
+      '<div style="background:#eff6ff; border:1px solid #93c5fd; border-radius:6px; padding:8px 12px; min-width:195px;">' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; gap:6px; font-size:10.5px; font-weight:bold; color:#1e40af;">' +
+          '<span>KONVERSI ($1 = Rp)</span>' +
+          '<input type="text" id="kInputKurs" value="15.800" onchange="ubahKursKotak()" style="width:72px; padding:1px 4px; border:1px solid #93c5fd; border-radius:3px; font-size:11px; font-weight:bold; text-align:right; background:#fff;">' +
+        '</div>' +
+        '<div id="kBoxKonv" style="font-size:15px; font-weight:bold; color:#1e3a8a; margin-top:3px;">Rp 0</div>' +
+      '</div>' +
+      '<div style="background:#0b2545; border:1px solid #0b2545; border-radius:6px; padding:8px 14px; min-width:185px; color:#fff;">' +
+        '<div style="font-size:10.5px; font-weight:bold; color:#93c5fd;">TOTAL SALDO</div>' +
+        '<div id="kBoxTotal" style="font-size:16px; font-weight:bold; color:#fff; margin-top:3px;">Rp 0</div>' +
+      '</div>';
+
+    pLive.insertBefore(boxRow, tblWrap);
+  }
+
+  function parseAngka(val) {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    var num = parseFloat(String(val).trim().replace(/\./g, '').replace(',', '.'));
+    return isNaN(num) ? 0 : num;
+  }
+
+  window.ubahKursKotak = function() {
+    var el = document.getElementById('kInputKurs');
+    var kurs = parseAngka(el.value) || 15800;
+    el.value = kurs.toLocaleString('id-ID');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    st.kursUsd = kurs;
+    localStorage.setItem('pms_admin_live_v1', JSON.stringify(st));
+    hitung4KotakSaldo();
+  };
+
+  window.hitung4KotakSaldo = function() {
+    pasang4KotakSaldo();
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    var kurs = parseAngka(st.kursUsd || 15800);
+    var saldoAwal = parseAngka(st.saldoAwal || 0);
+
+    var elKurs = document.getElementById('kInputKurs');
+    if (elKurs && document.activeElement !== elKurs) {
+      elKurs.value = kurs.toLocaleString('id-ID');
+    }
+
+    var sumRp = 0, sumUsd = 0, sumAdm = 0;
+    dbList.forEach(function(x) {
+      var isUsd = (x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+      if (isUsd) sumUsd += Number(x.sub || 0);
+      else sumRp += Number(x.sub || 0);
+    });
+
+    if (st.admin) {
+      Object.keys(st.admin).forEach(function(k) {
+        sumAdm += parseAngka(st.admin[k]);
+      });
+    }
+
+    var hasilKonv = Math.round(sumUsd * kurs);
+    var totalSaldo = Math.round((saldoAwal + sumRp + hasilKonv - sumAdm) * 100) / 100;
+
+    if (document.getElementById('kBoxRp')) document.getElementById('kBoxRp').textContent = 'Rp ' + (saldoAwal + sumRp).toLocaleString('id-ID');
+    if (document.getElementById('kBoxUsd')) document.getElementById('kBoxUsd').textContent = '$ ' + sumUsd.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (document.getElementById('kBoxKonv')) document.getElementById('kBoxKonv').textContent = 'Rp ' + hasilKonv.toLocaleString('id-ID');
+    if (document.getElementById('kBoxTotal')) {
+      var opts = (totalSaldo % 1 !== 0) ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : {};
+      document.getElementById('kBoxTotal').textContent = 'Rp ' + totalSaldo.toLocaleString('id-ID', opts);
+    }
+  };
+
+  if (typeof window.renderLive === 'function') {
+    var renderLiveAsli = window.renderLive;
+    window.renderLive = function() {
+      renderLiveAsli();
+      hitung4KotakSaldo();
+    };
+  }
+
+  hitung4KotakSaldo();
+});
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  var nowObj = new Date();
+  var bulanBerjalan = nowObj.getFullYear() + '-' + String(nowObj.getMonth() + 1).padStart(2, '0');
+
+  function parseAngka5(val) {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    var num = parseFloat(String(val).trim().replace(/\./g, '').replace(',', '.'));
+    return isNaN(num) ? 0 : num;
+  }
+
+  function hitungExpNextMonth(blnPilih, dbList, st) {
+    var thn = Number(blnPilih.slice(0, 4));
+    var bln = Number(blnPilih.slice(5, 7));
+    var dtNext = new Date(thn, bln, 1);
+    var blnExp = dtNext.getFullYear() + '-' + String(dtNext.getMonth() + 1).padStart(2, '0');
+    var kurs = parseAngka5(st.kursUsd || 15800);
+    var admMap = st.admin || {};
+
+    var sudahPernahCair = st.pencairanBulan && Object.keys(st.pencairanBulan).some(function(b) { return b !== blnPilih; });
+var totalRp = sudahPernahCair ? 0 : parseAngka5(st.saldoAwal || 0);
+
+    var cek = {};
+    dbList.forEach(function(x) {
+      if ((x.selesai || '').slice(0, 7) !== blnExp) return;
+      var isUsd = (x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+      var nom = Number(x.sub || 0);
+      totalRp += isUsd ? Math.round(nom * kurs) : nom;
+
+      var k = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+      if (!cek[k]) {
+        cek[k] = true;
+        var pot = parseAngka5(admMap[k] || 0);
+        totalRp -= isUsd ? Math.round(pot * kurs) : pot;
+      }
+    });
+
+    return { blnExp: blnExp, nominal: Math.max(0, Math.round(totalRp * 100) / 100) };
+  }
+
+  function pasangKotakKe5() {
+    var wrap4 = document.getElementById('wrap4KotakSaldo');
+    if (!wrap4 || document.getElementById('kKotakTersedia')) return;
+
+    var card5 = document.createElement('div');
+    card5.id = 'kKotakTersedia';
+    card5.style.cssText = 'background:#ecfdf5; border:1.5px solid #10b981; border-radius:6px; padding:8px 12px; min-width:230px;';
+    card5.innerHTML = '' +
+      '<div style="display:flex; justify-content:space-between; align-items:center; gap:6px; font-size:10.5px; font-weight:bold; color:#065f46;">' +
+        '<span>SALDO TERSEDIA</span>' +
+        '<input type="month" id="kBulanTersedia" value="' + bulanBerjalan + '" onchange="refreshKotakKe5()" style="padding:1px 4px; border:1px solid #6ee7b7; border-radius:3px; font-size:10.5px; font-weight:bold; background:#fff; color:#065f46;">' +
+      '</div>' +
+      '<div id="kBoxTersedia" style="font-size:15.5px; font-weight:bold; color:#047857; margin-top:3px;">Rp 0</div>' +
+      '<div id="kInfoExpTarget" style="font-size:9.5px; color:#065f46; margin-top:2px;">Dari lagu Exp: -</div>' +
+      '<button type="button" id="btnCairkanSaldo" onclick="aksiCairkanSaldo()" style="margin-top:5px; width:100%; padding:4px 8px; font-size:10.5px; font-weight:bold; background:#059669; color:#fff; border:none; border-radius:4px; cursor:pointer;">Cairkan Saldo</button>';
+
+    wrap4.appendChild(card5);
+  }
+
+  function tandaiRowDicairkan() {
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    var pencairanMap = st.pencairanBulan || {};
+    var rows = document.querySelectorAll('#tbLive tr');
+    rows.forEach(function(tr) {
+      var lama = tr.querySelector('.badge-cair-auto');
+      if (lama) lama.remove();
+      var tds = tr.querySelectorAll('td');
+      if (tds.length < 3) return;
+      var expTeks = (tds.item(1).textContent || '').trim();
+      if (expTeks.length !== 10) return;
+      var blnExp = Number(expTeks.slice(3, 5));
+      var thnExp = Number(expTeks.slice(6, 10));
+      var dtGaji = new Date(thnExp, blnExp - 2, 1);
+      var keyBlnGaji = dtGaji.getFullYear() + '-' + String(dtGaji.getMonth() + 1).padStart(2, '0');
+      if (pencairanMap[keyBlnGaji]) {
+        var divBadge = document.createElement('div');
+        divBadge.className = 'badge-cair-auto';
+        divBadge.style.cssText = 'margin-top:4px; display:inline-block; background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; padding:2px 7px; border-radius:4px; font-size:10.5px; font-weight:bold;';
+        divBadge.innerHTML = '&#128184; DICAIRKAN (' + keyBlnGaji + ')';
+        tds.item(2).appendChild(divBadge);
+      }
+    });
+  }
+
+  window.aksiCairkanSaldo = function() {
+    var blnPilih = document.getElementById('kBulanTersedia').value;
+    if (blnPilih !== bulanBerjalan) {
+      return alert('Pencairan hanya dapat dilakukan pada bulan berjalan (' + bulanBerjalan + ')!');
+    }
+
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    if (!st.pencairanBulan) st.pencairanBulan = {};
+
+    if (st.pencairanBulan[blnPilih]) {
+      if (!confirm('Saldo periode ' + blnPilih + ' sudah dicairkan sebesar Rp ' + st.pencairanBulan[blnPilih].toLocaleString('id-ID') + '. Batalkan pencairan ini?')) return;
+      delete st.pencairanBulan[blnPilih];
+      localStorage.setItem('pms_admin_live_v1', JSON.stringify(st));
+      refreshKotakKe5();
+      return;
+    }
+
+    var hasil = hitungExpNextMonth(blnPilih, dbList, st);
+    if (hasil.nominal <= 0) {
+      return alert('Tidak ada saldo tersedia (Exp ' + hasil.blnExp + ') untuk dicairkan bulan ini.');
+    }
+
+    if (!confirm('Konfirmasi pencairan Saldo Tersedia periode ' + blnPilih + ' (dari lagu Exp ' + hasil.blnExp + ') sebesar Rp ' + hasil.nominal.toLocaleString('id-ID') + '?')) return;
+
+    st.pencairanBulan[blnPilih] = hasil.nominal;
+    localStorage.setItem('pms_admin_live_v1', JSON.stringify(st));
+    refreshKotakKe5();
+    alert('Saldo Tersedia sebesar Rp ' + hasil.nominal.toLocaleString('id-ID') + ' berhasil dicairkan!');
+  };
+
+  window.refreshKotakKe5 = function() {
+    pasangKotakKe5();
+    var elBulan = document.getElementById('kBulanTersedia');
+    if (!elBulan) return;
+
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    var pencairanMap = st.pencairanBulan || {};
+
+    // Potong Total Saldo pada kotak ke-4 dengan total dana yang sudah dicairkan
+    var totalDicairkan = 0;
+    Object.keys(pencairanMap).forEach(function(b) {
+      totalDicairkan += parseAngka5(pencairanMap[b]);
+    });
+    var elTotal = document.getElementById('kBoxTotal');
+    if (elTotal && totalDicairkan > 0) {
+      var totalKotor = parseAngka5((elTotal.textContent || '').replace('Rp', '').trim());
+      var totalNet = Math.max(0, Math.round((totalKotor - totalDicairkan) * 100) / 100);
+      var opts = (totalNet % 1 !== 0) ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : {};
+      elTotal.textContent = 'Rp ' + totalNet.toLocaleString('id-ID', opts);
+    }
+
+    var blnPilih = elBulan.value || bulanBerjalan;
+    var hasil = hitungExpNextMonth(blnPilih, dbList, st);
+    var sudahCair = !!pencairanMap[blnPilih];
+    var nomTampil = sudahCair ? 0 : hasil.nominal;
+
+    var namaBln = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    var idxExp = Number(hasil.blnExp.slice(5, 7)) - 1;
+    var thnExp = hasil.blnExp.slice(0, 4);
+    var labelExp = (namaBln[idxExp] || '') + ' ' + thnExp;
+
+    document.getElementById('kBoxTersedia').textContent = 'Rp ' + nomTampil.toLocaleString('id-ID');
+    document.getElementById('kInfoExpTarget').textContent = 'Dari lagu Exp: ' + labelExp;
+
+    var btnCair = document.getElementById('btnCairkanSaldo');
+    if (blnPilih !== bulanBerjalan) {
+      btnCair.disabled = true;
+      btnCair.style.background = '#94a3b8';
+      btnCair.style.cursor = 'not-allowed';
+      btnCair.textContent = 'Terkunci (Bukan Bulan Berjalan)';
+    } else if (sudahCair) {
+      btnCair.disabled = false;
+      btnCair.style.background = '#0284c7';
+      btnCair.style.cursor = 'pointer';
+      btnCair.textContent = 'Sudah Dicairkan (Klik utk Batal)';
+    } else {
+      btnCair.disabled = false;
+      btnCair.style.background = '#059669';
+      btnCair.style.cursor = 'pointer';
+      btnCair.textContent = 'Cairkan Saldo';
+    }
+
+    tandaiRowDicairkan();
+  };
+
+  if (typeof window.hitung4KotakSaldo === 'function') {
+    var hitung4Asli = window.hitung4KotakSaldo;
+    window.hitung4KotakSaldo = function() {
+      hitung4Asli();
+      refreshKotakKe5();
+    };
+  }
+
+  refreshKotakKe5();
+});
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  function parseAngkaBln(val) {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    var num = parseFloat(String(val).trim().replace(/\./g, '').replace(',', '.'));
+    return isNaN(num) ? 0 : num;
+  }
+
+  function pasangInfoBulanBerjalan() {
+    var configs = [
+      { boxId: 'kBoxRp', infoId: 'kSubRpBln', label: 'Bulan Berjalan', warna: '#166534', border: '#86efac' },
+      { boxId: 'kBoxUsd', infoId: 'kSubUsdBln', label: 'Bulan Berjalan', warna: '#92400e', border: '#fcd34d' },
+      { boxId: 'kBoxTotal', infoId: 'kSubTotalBln', label: 'Total Saldo Bulan Berjalan', warna: '#93c5fd', border: '#1e3a8a' }
+    ];
+
+    configs.forEach(function(c) {
+      var elMain = document.getElementById(c.boxId);
+      if (!elMain || document.getElementById(c.infoId)) return;
+      var subDiv = document.createElement('div');
+      subDiv.id = c.infoId;
+      subDiv.style.cssText = 'margin-top:8px; padding-top:5px; border-top:1px dashed ' + c.border + '; font-size:10px; font-weight:bold; color:' + c.warna + '; line-height:1.3;';
+      subDiv.textContent = c.label + ': Rp 0';
+      elMain.parentElement.appendChild(subDiv);
+    });
+  }
+
+  window.updateInfoBulanBerjalan = function() {
+    pasangInfoBulanBerjalan();
+    var nowObj = new Date();
+    var defBln = nowObj.getFullYear() + '-' + String(nowObj.getMonth() + 1).padStart(2, '0');
+    var elBulan = document.getElementById('kBulanTersedia');
+    var blnTarget = (elBulan && elBulan.value) ? elBulan.value : defBln;
+
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    var kurs = parseAngkaBln(st.kursUsd || 15800);
+    var admMap = st.admin || {};
+
+    var blnRp = 0, blnUsd = 0, blnAdmRp = 0;
+    var cek = {};
+
+        var dtExpTarget = new Date(Number(blnTarget.slice(0, 4)), Number(blnTarget.slice(5, 7)), 1);
+    var blnExpTarget = dtExpTarget.getFullYear() + '-' + String(dtExpTarget.getMonth() + 1).padStart(2, '0');
+
+    dbList.forEach(function(x) {
+      if ((x.selesai || '').slice(0, 7) !== blnExpTarget) return;
+
+      var isUsd = (x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+      var nom = Number(x.sub || 0);
+      if (isUsd) blnUsd += nom;
+      else blnRp += nom;
+
+      var k = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+      if (!cek[k]) {
+        cek[k] = true;
+        var pot = parseAngkaBln(admMap[k] || 0);
+        blnAdmRp += isUsd ? Math.round(pot * kurs) : pot;
+      }
+    });
+
+    var blnKonvRp = Math.round(blnUsd * kurs);
+    var totalBlnBerjalan = Math.max(0, Math.round((blnRp + blnKonvRp - blnAdmRp) * 100) / 100);
+
+var elBoxKonv = document.getElementById('kBoxKonv');
+if (elBoxKonv) elBoxKonv.textContent = 'Rp ' + blnKonvRp.toLocaleString('id-ID');
+
+    var elSubRp = document.getElementById('kSubRpBln');
+    var elSubUsd = document.getElementById('kSubUsdBln');
+    var elSubTot = document.getElementById('kSubTotalBln');
+
+    if (elSubRp) elSubRp.textContent = 'Bulan Berjalan: Rp ' + blnRp.toLocaleString('id-ID');
+    if (elSubUsd) elSubUsd.textContent = 'Bulan Berjalan: $ ' + blnUsd.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (elSubTot) elSubTot.innerHTML = 'Total Saldo Bulan Berjalan:<br><span style="font-size:12px; color:#fff;">Rp ' + totalBlnBerjalan.toLocaleString('id-ID') + '</span>';
+  };
+
+  if (typeof window.refreshKotakKe5 === 'function') {
+    var refresh5Asli = window.refreshKotakKe5;
+    window.refreshKotakKe5 = function() {
+      refresh5Asli();
+      updateInfoBulanBerjalan();
+    };
+  }
+
+  updateInfoBulanBerjalan();
+});
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  function formatMataUangTabelLive() {
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    var admMap = st.admin || {};
+    var saldoRp = Number(st.saldoAwal || 0);
+    var saldoUsd = 0;
+
+    // Susun daftar grup unik urut sama persis dengan tabel #tbLive
+    var grupMap = {};
+    var grupUrut = [];
+    dbList.forEach(function(x) {
+      var kunci = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+      if (!grupMap[kunci]) {
+        grupMap[kunci] = {
+          kunci: kunci,
+          isUsd: (x.noInv || '').toUpperCase().indexOf('INT') !== -1,
+          totalSub: 0
+        };
+        grupUrut.push(grupMap[kunci]);
+      }
+      grupMap[kunci].totalSub += Number(x.sub || 0);
+    });
+
+    var rows = document.querySelectorAll('#tbLive tr');
+    rows.forEach(function(tr, idx) {
+      var g = grupUrut[idx];
+      if (!g) return;
+      var tds = tr.querySelectorAll('td');
+      if (tds.length < 9) return;
+
+      var adm = Number(admMap[g.kunci] || 0);
+      var nom = g.totalSub;
+
+      if (g.isUsd) {
+        saldoUsd = Math.round((saldoUsd + nom - adm) * 100) / 100;
+        var teksNom = nom.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        var teksSaldo = saldoUsd.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        tds.item(6).innerHTML = '<div style="display:flex; justify-content:space-between; font-weight:bold;"><span>$</span><span>' + teksNom + '</span></div>';
+        var spanAdm = tds.item(7).querySelector('span');
+        if (spanAdm) spanAdm.textContent = '$';
+        tds.item(8).innerHTML = '<div style="display:flex; justify-content:space-between; font-weight:bold;"><span>$</span><span>' + teksSaldo + '</span></div>';
+      } else {
+        saldoRp = Math.round((saldoRp + nom - adm) * 100) / 100;
+        tds.item(6).innerHTML = '<div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Rp</span><span>' + nom.toLocaleString('id-ID') + '</span></div>';
+        var spanAdmRp = tds.item(7).querySelector('span');
+        if (spanAdmRp) spanAdmRp.textContent = 'Rp';
+        tds.item(8).innerHTML = '<div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Rp</span><span>' + saldoRp.toLocaleString('id-ID') + '</span></div>';
+      }
+    });
+  }
+
+  if (typeof window.renderLive === 'function') {
+    var renderLiveSebelumUsd = window.renderLive;
+    window.renderLive = function() {
+      renderLiveSebelumUsd();
+      formatMataUangTabelLive();
+    };
+  }
+
+  formatMataUangTabelLive();
+});
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  function fmtUsd(nom) {
+    return '$ ' + Number(nom || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function fmtRp(nom) {
+    return 'Rp ' + Number(nom || 0).toLocaleString('id-ID');
+  }
+
+  // 1. TAB INPUT DATA (#pInput) — Ketik INT -> Subtotal otomatis $ | INV -> Rp
+  var pInput = document.getElementById('pInput');
+  if (pInput) {
+    var elNoInv = document.getElementById('iNoInv') || pInput.querySelector('input[placeholder*="INV"]');
+    var elRate = document.getElementById('iRate') || pInput.querySelector('input[placeholder="600000"]');
+    var elDur = document.getElementById('iDur') || pInput.querySelector('input[value="1"]');
+    var elSub = document.getElementById('iSub') || pInput.querySelector('input[readonly]');
+
+    function hitungSubtotalInput() {
+      if (!elNoInv || !elSub) return;
+      var isUsd = (elNoInv.value || '').toUpperCase().indexOf('INT') !== -1;
+      var rate = parseFloat(String((elRate && elRate.value) || '').replace(/\./g, '').replace(',', '.')) || 0;
+      var dur = parseFloat((elDur && elDur.value) || 1) || 1;
+      var total = rate * dur;
+      elSub.value = isUsd ? fmtUsd(total) : fmtRp(total);
+    }
+
+    if (typeof window.hitungSub === 'function') {
+      var asliHitungSub = window.hitungSub;
+      window.hitungSub = function() {
+        asliHitungSub();
+        hitungSubtotalInput();
+      };
+    }
+
+    if (elNoInv) elNoInv.addEventListener('input', hitungSubtotalInput);
+    if (elRate) elRate.addEventListener('input', hitungSubtotalInput);
+    if (elDur) elDur.addEventListener('input', hitungSubtotalInput);
+    hitungSubtotalInput();
+  }
+
+  // 2. TAB PLACEMENT PLAYLIST (#pRekap) & OUTPUT INVOICE (#pInvoice)
+  window.sinkronMataUangGlobal = function() {
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var sumRp = 0, sumUsd = 0;
+    dbList.forEach(function(x) {
+      if ((x.noInv || '').toUpperCase().indexOf('INT') !== -1) sumUsd += Number(x.sub || 0);
+      else sumRp += Number(x.sub || 0);
+    });
+
+    // A. Placement Playlist (#pRekap)
+    var pRekap = document.getElementById('pRekap');
+    if (pRekap) {
+      var rows = pRekap.querySelectorAll('tbody tr');
+      if (!rows.length) rows = pRekap.querySelectorAll('tr');
+      var sedangUsd = false;
+
+      rows.forEach(function(tr) {
+        var txt = (tr.textContent || '').toUpperCase();
+        if (txt.indexOf('NO INVOICE') !== -1) return;
+
+        if (txt.indexOf('TOTAL KESELURUHAN') !== -1) {
+          var tdsTot = tr.querySelectorAll('td');
+          if (tdsTot.length >= 2) {
+            tdsTot.item(tdsTot.length - 1).innerHTML =
+              fmtRp(sumRp) + '<br><span style="color:#b45309;">' + fmtUsd(sumUsd) + '</span>';
+          }
+          return;
+        }
+
+        var tds = tr.querySelectorAll('td');
+        if (tds.length >= 11) {
+          sedangUsd = (tds.item(2).textContent || '').toUpperCase().indexOf('INT') !== -1;
+        }
+
+        if (sedangUsd) {
+          tds.forEach(function(td) {
+            if (td.textContent.indexOf('Rp') !== -1) {
+              var angka = parseFloat(td.textContent.replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+              td.textContent = fmtUsd(angka);
+            }
+          });
+        }
+      });
+    }
+
+    // B. Output Invoice (#pInvoice)
+    var pInv = document.getElementById('pInvoice');
+    if (pInv) {
+      var sel = pInv.querySelector('select');
+      var noInv = sel ? (sel.value || '').toUpperCase() : '';
+      var teks = (pInv.textContent || '').toUpperCase();
+
+      if (noInv.indexOf('INT') !== -1 || teks.indexOf('NO. INVOICE: INT') !== -1) {
+        var walker = document.createTreeWalker(pInv, NodeFilter.SHOW_TEXT, null, false);
+        var n;
+        while ((n = walker.nextNode())) {
+          if (n.nodeValue.indexOf('Rp') !== -1) {
+            n.nodeValue = n.nodeValue.replace(/(Rp\s*)+/g, '$ ');
+          }
+          if (n.nodeValue.indexOf('Rupiah') !== -1) {
+            n.nodeValue = n.nodeValue.replace(/Rupiah/g, 'Dollar');
+          }
+        }
+        pInv.querySelectorAll('div, td, strong, b').forEach(function(el) {
+          if (el.innerHTML.indexOf('<span>$ </span><span>$') !== -1) {
+            el.innerHTML = el.innerHTML.replace(/<span>\$\s*<\/span>\s*<span>\$\s*/g, '<span>$ </span><span>');
+          }
+        });
+      }
+    }
+  };
+
+  // Sambungkan otomatis saat simpan data, pindah tab, pilih invoice, atau print
+  var btnSimpan = pInput ? pInput.querySelector('button.btn') : null;
+  if (btnSimpan) {
+    btnSimpan.addEventListener('click', function() {
+      setTimeout(window.sinkronMataUangGlobal, 60);
+    });
+  }
+
+  if (typeof window.bukaTab === 'function') {
+    var bukaTabAsli = window.bukaTab;
+    window.bukaTab = function(id, btn) {
+      bukaTabAsli(id, btn);
+      window.sinkronMataUangGlobal();
+    };
+  }
+
+  var pInvEl = document.getElementById('pInvoice');
+  if (pInvEl) pInvEl.addEventListener('change', window.sinkronMataUangGlobal);
+  window.addEventListener('beforeprint', window.sinkronMataUangGlobal);
+
+  window.sinkronMataUangGlobal();
+});
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  function fmtUsd(nom) {
+    return '$ ' + Number(nom || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function fmtRp(nom) {
+    return 'Rp ' + Number(nom || 0).toLocaleString('id-ID');
+  }
+
+  // 1. TAB INPUT DATA (#pInput) — Ketik INT -> Subtotal otomatis $ | INV -> Rp
+  var pInput = document.getElementById('pInput');
+  if (pInput) {
+    var elNoInv = document.getElementById('iNoInv') || pInput.querySelector('input[placeholder*="INV"]');
+    var elRate = document.getElementById('iRate') || pInput.querySelector('input[placeholder="600000"]');
+    var elDur = document.getElementById('iDur') || pInput.querySelector('input[value="1"]');
+    var elSub = document.getElementById('iSub') || pInput.querySelector('input[readonly]');
+
+    function hitungSubtotalInput() {
+      if (!elNoInv || !elSub) return;
+      var isUsd = (elNoInv.value || '').toUpperCase().indexOf('INT') !== -1;
+      var rate = parseFloat(String((elRate && elRate.value) || '').replace(/\./g, '').replace(',', '.')) || 0;
+      var dur = parseFloat((elDur && elDur.value) || 1) || 1;
+      var total = rate * dur;
+      elSub.value = isUsd ? fmtUsd(total) : fmtRp(total);
+    }
+
+    if (typeof window.hitungSub === 'function') {
+      var asliHitungSub = window.hitungSub;
+      window.hitungSub = function() {
+        asliHitungSub();
+        hitungSubtotalInput();
+      };
+    }
+
+    if (elNoInv) elNoInv.addEventListener('input', hitungSubtotalInput);
+    if (elRate) elRate.addEventListener('input', hitungSubtotalInput);
+    if (elDur) elDur.addEventListener('input', hitungSubtotalInput);
+    hitungSubtotalInput();
+  }
+
+  // 2. TAB PLACEMENT PLAYLIST (#pRekap) & OUTPUT INVOICE (#pInvoice)
+  window.sinkronMataUangGlobal = function() {
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var sumRp = 0, sumUsd = 0;
+    dbList.forEach(function(x) {
+      if ((x.noInv || '').toUpperCase().indexOf('INT') !== -1) sumUsd += Number(x.sub || 0);
+      else sumRp += Number(x.sub || 0);
+    });
+
+    // A. Placement Playlist (#pRekap)
+    var pRekap = document.getElementById('pRekap');
+    if (pRekap) {
+      var rows = pRekap.querySelectorAll('tbody tr');
+      if (!rows.length) rows = pRekap.querySelectorAll('tr');
+      var sedangUsd = false;
+
+      rows.forEach(function(tr) {
+        var txt = (tr.textContent || '').toUpperCase();
+        if (txt.indexOf('NO INVOICE') !== -1) return;
+
+        if (txt.indexOf('TOTAL KESELURUHAN') !== -1) {
+          var tdsTot = tr.querySelectorAll('td');
+          if (tdsTot.length >= 2) {
+            tdsTot.item(tdsTot.length - 1).innerHTML =
+              fmtRp(sumRp) + '<br><span style="color:#b45309;">' + fmtUsd(sumUsd) + '</span>';
+          }
+          return;
+        }
+
+        var tds = tr.querySelectorAll('td');
+        if (tds.length >= 11) {
+          sedangUsd = (tds.item(2).textContent || '').toUpperCase().indexOf('INT') !== -1;
+        }
+
+        if (sedangUsd) {
+          tds.forEach(function(td) {
+            if (td.textContent.indexOf('Rp') !== -1) {
+              var angka = parseFloat(td.textContent.replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+              td.textContent = fmtUsd(angka);
+            }
+          });
+        }
+      });
+    }
+
+    // B. Output Invoice (#pInvoice) — baca <select> maupun <input list>
+    var pInv = document.getElementById('pInvoice');
+    if (pInv) {
+      var ctrlInv = pInv.querySelector('select, input[list], input[type="text"]');
+      var valCtrl = ctrlInv ? (ctrlInv.value || '').toUpperCase() : '';
+      var teks = (pInv.textContent || '').toUpperCase();
+      var isIntInv = valCtrl.indexOf('INT') !== -1 || teks.indexOf('NO. INVOICE: INT') !== -1;
+
+      var walker = document.createTreeWalker(pInv, NodeFilter.SHOW_TEXT, null, false);
+      var n;
+      while ((n = walker.nextNode())) {
+        if (isIntInv) {
+          if (n.nodeValue.indexOf('Rp') !== -1) n.nodeValue = n.nodeValue.replace(/(Rp\s*)+/g, '$ ');
+          if (n.nodeValue.indexOf('Rupiah') !== -1) n.nodeValue = n.nodeValue.replace(/Rupiah/g, 'Dollar');
+        } else {
+          // Hapus simbol "$" nyasar jika invoice adalah Rupiah (INV)
+          if (n.nodeValue.trim() === '$') n.nodeValue = '';
+          if (n.nodeValue.indexOf('$ Rp') !== -1) n.nodeValue = n.nodeValue.replace(/\$\s*Rp/g, 'Rp');
+        }
+      }
+
+                  if (isIntInv) {
+        pInv.querySelectorAll('div, td, strong, b, span').forEach(function(el) {
+          if (el.children.length === 0 && el.textContent.trim() === '$') {
+            var parentTxt = (el.parentElement && el.parentElement.textContent) || '';
+            if (parentTxt.indexOf('$ 4') !== -1 || (parentTxt.match(/\$/g) || []).length >= 2) {
+              el.textContent = '';
+            }
+          }
+        });
+      }
+
+
+    }
+  };
+    
+
+  var pInvTarget = document.getElementById('pInvoice');
+  if (pInvTarget) {
+    var sedangUpdateInv = false;
+    var obsInv = new MutationObserver(function() {
+      if (sedangUpdateInv) return;
+      sedangUpdateInv = true;
+      window.sinkronMataUangGlobal();
+      setTimeout(function() { sedangUpdateInv = false; }, 10);
+    });
+    obsInv.observe(pInvTarget, { childList: true, subtree: true });
+    pInvTarget.addEventListener('change', function() { setTimeout(window.sinkronMataUangGlobal, 10); });
+    pInvTarget.addEventListener('input', function() { setTimeout(window.sinkronMataUangGlobal, 10); });
+  }
+
+  var btnSimpan = pInput ? pInput.querySelector('button.btn') : null;
+  if (btnSimpan) {
+    btnSimpan.addEventListener('click', function() {
+      setTimeout(window.sinkronMataUangGlobal, 60);
+    });
+  }
+
+  if (typeof window.bukaTab === 'function') {
+    var bukaTabAsli = window.bukaTab;
+    window.bukaTab = function(id, btn) {
+      bukaTabAsli(id, btn);
+      window.sinkronMataUangGlobal();
+    };
+  }
+
+  window.addEventListener('beforeprint', window.sinkronMataUangGlobal);
+  window.sinkronMataUangGlobal();
+});
 </script>
 
 
