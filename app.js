@@ -539,4 +539,77 @@ document.addEventListener('DOMContentLoaded', function() {
   if (wrap) document.querySelectorAll('.panel').forEach(function(p) { wrap.appendChild(p); });
 });
 
+// === SINKRONISASI REAL-TIME KE REKAN KERJA (FIREBASE PM-STUDIO-17) ===
+(function() {
+  var FB_URL = 'https://firebasedatabase.app';
+  var KEYS_SYNC = ['pms_db_v1', 'pms_clients_v1', 'pms_management_v1', 'pms_admin_live_v1'];
+  var sedangTarikCloud = false;
+  var hashTerakhir = '';
+
+  function buatPaketData() {
+    var paket = {};
+    KEYS_SYNC.forEach(function(k) {
+      paket[k] = localStorage.getItem(k) || '[]';
+    });
+    return paket;
+  }
+
+  function kirimKeCloud() {
+    if (sedangTarikCloud) return;
+    var paket = buatPaketData();
+    var str = JSON.stringify(paket);
+    if (str === hashTerakhir) return;
+    hashTerakhir = str;
+
+    fetch(FB_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: str
+    }).catch(function(err) { console.warn('Sync kirim tertunda:', err); });
+  }
+
+  function tarikDariCloud() {
+    fetch(FB_URL + '?t=' + Date.now())
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (!data || typeof data !== 'object') return;
+        var strBaru = JSON.stringify(data);
+        if (!strBaru || strBaru === '{}' || strBaru === hashTerakhir) return;
+
+        sedangTarikCloud = true;
+        hashTerakhir = strBaru;
+        KEYS_SYNC.forEach(function(k) {
+          if (data[k] !== undefined) {
+            localStorage.setItem(k, typeof data[k] === 'string' ? data[k] : JSON.stringify(data[k]));
+          }
+        });
+        sedangTarikCloud = false;
+
+        if (typeof renderAll === 'function') renderAll();
+        if (typeof renderLive === 'function') renderLive();
+        if (typeof renderMgmt === 'function') renderMgmt();
+        if (typeof hitungSlipSimple === 'function') hitungSlipSimple();
+      })
+      .catch(function() { sedangTarikCloud = false; });
+  }
+
+  var origSetItem = localStorage.setItem;
+  localStorage.setItem = function(key, val) {
+    origSetItem.apply(this, arguments);
+    if (!sedangTarikCloud && KEYS_SYNC.indexOf(key) !== -1) {
+      setTimeout(kirimKeCloud, 150);
+    }
+  };
+
+  window.addEventListener('load', function() {
+    var adaDataLokal = KEYS_SYNC.some(function(k) {
+      var v = localStorage.getItem(k);
+      return v && v !== '[]' && v !== '{}';
+    });
+    if (adaDataLokal) kirimKeCloud();
+
+    tarikDariCloud();
+    setInterval(tarikDariCloud, 3000);
+  });
+})();
 
