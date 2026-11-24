@@ -729,21 +729,19 @@ if ((x.selesai || '').slice(0, 7) !== blnExp) return;
 
   var rawMgmt = JSON.parse(localStorage.getItem('pms_management_v1') || '[]');
   if (!rawMgmt.length) {
-        var panelMgmt = document.getElementById('pMgmt');
-    if (panelMgmt) {
-      panelMgmt.querySelectorAll('table tbody tr').forEach(function(tr) {
-        var tds = tr.querySelectorAll('td');
-        if (tds.length >= 5) {
-          var nimTxt = (tds.item(1).textContent || '').trim();
-          var namaTxt = (tds.item(2).textContent || '').trim();
-          var jabTxt = (tds.item(3).textContent || '').trim();
-          var persenNum = parseFloat((tds.item(4).textContent || '').replace(/[^0-9.]/g, '')) || 0;
-          if (/^\d+$/.test(nimTxt) && namaTxt && persenNum > 0) {
-            rawMgmt.push({ nim: nimTxt, nama: namaTxt, jabatan: jabTxt, persen: persenNum });
-          }
+          document.querySelectorAll('table tbody tr').forEach(function(tr) {
+      var tds = tr.querySelectorAll('td');
+      if (tds.length >= 5) {
+        var nimTxt = (tds.item(1).textContent || '').trim();
+        var namaTxt = (tds.item(2).textContent || '').trim();
+        var jabTxt = (tds.item(3).textContent || '').trim();
+        var persenNum = parseFloat((tds.item(4).textContent || '').replace(/[^0-9.]/g, '')) || 0;
+        if (/^\d+$/.test(nimTxt) && namaTxt && persenNum > 0) {
+          rawMgmt.push({ nim: nimTxt, nama: namaTxt, jabatan: jabTxt, persen: persenNum });
         }
-      });
-    }
+      }
+    });
+
 
   }
 
