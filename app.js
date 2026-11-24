@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // === SINKRONISASI REAL-TIME KE REKAN KERJA (FIREBASE PM-STUDIO-17) ===
 (function() {
-  var FB_URL = 'https://firebasedatabase.app';
+  var FB_URL = 'https://pm-studio-17-default-rtdb.asia-southeast1.firebasedatabase.app';
   var KEYS_SYNC = ['pms_db_v1', 'pms_clients_v1', 'pms_management_v1', 'pms_admin_live_v1'];
   var sedangTarikCloud = false;
   var hashTerakhir = '';
