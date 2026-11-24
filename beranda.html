@@ -297,7 +297,6 @@
 </div>
 
 <!-- 7. SLIP GAJI -->
-<!-- 7. SLIP GAJI -->
 <div id="pSlip" class="panel">
   <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -316,6 +315,149 @@
   <div id="box2Slip" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;"></div>
 </div>
 
+	<script>
+(function() {
+  function bangunSlipGajiSekarang() {
+    var box = document.getElementById('box2Slip');
+    if (!box) return;
+
+    if (!document.getElementById('stylePrintSlipA4')) {
+      var stCss = document.createElement('style');
+      stCss.id = 'stylePrintSlipA4';
+      stCss.textContent =
+        '@media print {' +
+          'body.mode-print-slip * { visibility: hidden !important; }' +
+          'body.mode-print-slip #box2Slip, body.mode-print-slip #box2Slip * { visibility: visible !important; }' +
+          'body.mode-print-slip #box2Slip { position: fixed; left: 0; top: 0; width: 100%; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; padding: 8px; }' +
+          'body.mode-print-slip .kartu-slip-biru { background: #e0f2fe !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+        '}';
+      document.head.appendChild(stCss);
+    }
+
+    function parseAngkaSlip(v) {
+      if (typeof v === 'number') return v;
+      if (!v) return 0;
+      return parseFloat(String(v).replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+    }
+
+    function buatHtmlSlip(dataKaryawan, periodeTeks, tglTtd, totalBersih, admPenarikan) {
+      var nama = (dataKaryawan && (dataKaryawan.nama || dataKaryawan.name)) || 'Tim / Karyawan PM Studio';
+      var jabatan = (dataKaryawan && (dataKaryawan.jabatan || dataKaryawan.role || dataKaryawan.posisi)) || 'Staff Operasional & Kurasi';
+      var rek = (dataKaryawan && (dataKaryawan.rekening || dataKaryawan.rek || dataKaryawan.bank)) || '-';
+      var persen = Number((dataKaryawan && (dataKaryawan.persen || dataKaryawan.komisi || dataKaryawan.share)) || 50);
+      var gajiPokok = Number((dataKaryawan && (dataKaryawan.gajiPokok || dataKaryawan.gapok)) || 0);
+
+      var dasarBagi = Math.max(0, totalBersih - admPenarikan);
+      var bagianHasil = Math.round((dasarBagi * persen) / 100);
+      var totalDiterima = gajiPokok + bagianHasil;
+
+      return '' +
+        '<div class="kartu-slip-biru" style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; padding:16px; color:#0f172a; -webkit-print-color-adjust:exact; print-color-adjust:exact;">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #0284c7; padding-bottom:8px; margin-bottom:10px;">' +
+            '<div>' +
+              '<div style="font-size:13px; font-weight:bold; color:#0369a1;">PUSTAKA MUSIK STUDIO</div>' +
+              '<div style="font-size:10px; color:#475569;">Spotify Organic Playlist Curation Services</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<div style="font-size:12px; font-weight:bold; color:#0c4a6e;">SLIP GAJI & KOMISI</div>' +
+              '<div style="font-size:10.5px; color:#0369a1; font-weight:bold;">Periode: ' + periodeTeks + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<table style="width:100%; font-size:11px; margin-bottom:10px; border-collapse:collapse;">' +
+            '<tr><td style="padding:2px 0; width:34%; color:#475569;">Nama Penerima</td><td style="padding:2px 0; font-weight:bold;">: ' + nama + '</td></tr>' +
+            '<tr><td style="padding:2px 0; color:#475569;">Jabatan / Divisi</td><td style="padding:2px 0;">: ' + jabatan + '</td></tr>' +
+            '<tr><td style="padding:2px 0; color:#475569;">No. Rekening</td><td style="padding:2px 0;">: ' + rek + '</td></tr>' +
+          '</table>' +
+          '<div style="background:#ffffff; border:1px solid #bae6fd; border-radius:6px; padding:8px 10px; margin-bottom:10px;">' +
+            '<div style="font-size:10.5px; font-weight:bold; color:#0369a1; margin-bottom:5px; border-bottom:1px dashed #bae6fd; padding-bottom:3px;">RINCIAN PENERIMAAN</div>' +
+            '<table style="width:100%; font-size:11px; border-collapse:collapse;">' +
+              '<tr><td style="padding:3px 0;">Total Pendapatan Bersih Studio</td><td style="text-align:right;">Rp ' + totalBersih.toLocaleString('id-ID') + '</td></tr>' +
+              '<tr><td style="padding:3px 0;">Potongan Admin Penarikan</td><td style="text-align:right; color:#b91c1c;">- Rp ' + admPenarikan.toLocaleString('id-ID') + '</td></tr>' +
+              '<tr><td style="padding:3px 0;">Gaji Pokok</td><td style="text-align:right;">Rp ' + gajiPokok.toLocaleString('id-ID') + '</td></tr>' +
+              '<tr><td style="padding:3px 0;">Bagi Hasil / Komisi (' + persen + '%)</td><td style="text-align:right;">Rp ' + bagianHasil.toLocaleString('id-ID') + '</td></tr>' +
+              '<tr style="border-top:1.5px solid #0284c7; font-weight:bold; font-size:12px; color:#0c4a6e;">' +
+                '<td style="padding-top:6px;">TOTAL DITERIMA</td>' +
+                '<td style="padding-top:6px; text-align:right;">Rp ' + totalDiterima.toLocaleString('id-ID') + '</td>' +
+              '</tr>' +
+            '</table>' +
+          '</div>' +
+          '<div style="display:flex; justify-content:space-between; font-size:10.5px; margin-top:14px; text-align:center;">' +
+            '<div style="width:45%;"><div>Penerima,</div><div style="height:36px;"></div><div style="font-weight:bold; text-decoration:underline;">' + nama + '</div></div>' +
+            '<div style="width:45%;"><div>Bandung, ' + tglTtd + '</div><div style="height:36px;"></div><div style="font-weight:bold; text-decoration:underline;">Admin PM Studio</div></div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    var blnVal = (document.getElementById('sBulan') && document.getElementById('sBulan').value) || '2026-11';
+    var admVal = parseAngkaSlip(document.getElementById('sAdm') && document.getElementById('sAdm').value);
+    var ttdVal = (document.getElementById('sTgl') && document.getElementById('sTgl').value) || '30 November 2026';
+
+    var namaBln = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    var periodeTeks = (namaBln[Number(blnVal.slice(5, 7)) - 1] || '') + ' ' + blnVal.slice(0, 4);
+
+    var dtExp = new Date(Number(blnVal.slice(0, 4)), Number(blnVal.slice(5, 7)), 1);
+    var targetExp = dtExp.getFullYear() + '-' + String(dtExp.getMonth() + 1).padStart(2, '0');
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    var kurs = parseAngkaSlip(st.kursUsd || 15800);
+    var admMap = st.admin || {};
+
+    var totRp = 0, totUsd = 0, potRp = 0, potUsd = 0, cek = {};
+    dbList.forEach(function(x) {
+      if ((x.selesai || '').slice(0, 7) !== targetExp) return;
+      var isUsd = (x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+      if (isUsd) totUsd += Number(x.sub || 0);
+      else totRp += Number(x.sub || 0);
+
+      var k = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+      if (!cek[k]) {
+        cek[k] = true;
+        var p = parseAngkaSlip(admMap[k] || 0);
+        if (isUsd) potUsd += p;
+        else potRp += p;
+      }
+    });
+
+    var bersihRp = Math.max(0, totRp - potRp);
+    var bersihUsd = Math.max(0, totUsd - potUsd);
+    var totalBersihStudio = Math.round(bersihRp + (bersihUsd * kurs));
+
+    var listTim = [];
+    ['pms_mgmt_v1', 'pms_team_v1', 'pms_karyawan_v1', 'pms_staff_v1'].forEach(function(k) {
+      if (!listTim.length) {
+        var raw = localStorage.getItem(k);
+        if (raw) {
+          try {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length) listTim = parsed;
+          } catch (e) {}
+        }
+      }
+    });
+
+    var k1 = listTim.at(0) || { nama: 'Karyawan 1', jabatan: 'Admin & Kurasi', persen: 50 };
+    var k2 = listTim.at(1) || { nama: 'Karyawan 2', jabatan: 'Operasional & Produksi', persen: 50 };
+
+    box.innerHTML =
+      buatHtmlSlip(k1, periodeTeks, ttdVal, totalBersihStudio, admVal) +
+      buatHtmlSlip(k2, periodeTeks, ttdVal, totalBersihStudio, admVal);
+  }
+
+  window.hitungSlipSimple = bangunSlipGajiSekarang;
+  window.cetakSlipBersih = function() {
+    bangunSlipGajiSekarang();
+    document.body.classList.add('mode-print-slip');
+    window.print();
+    setTimeout(function() { document.body.classList.remove('mode-print-slip'); }, 500);
+  };
+
+  setTimeout(bangunSlipGajiSekarang, 200);
+  setTimeout(bangunSlipGajiSekarang, 1500);
+  bangunSlipGajiSekarang();
+})();
+</script>
+
+	
 <script src="app.js"></script>
 
 
