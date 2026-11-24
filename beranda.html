@@ -40,8 +40,30 @@
     #printArea { position: absolute; left: 0; top: 0; width: 100%; min-height: 297mm !important; border: none !important; margin: 0 !important; padding: 15mm !important; background: #fff !important; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   }
+  /* Sembunyikan tampilan scrollbar samping namun halaman tetap bisa digulir */
+  html, body {
+    scrollbar-width: none; /* Untuk Firefox */
+    -ms-overflow-style: none; /* Untuk Edge lama */
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; /* Untuk Chrome, Edge, & Safari */
+  }
+  /* Tampilkan daftar dropdown secara utuh tanpa batang scroll di sampingnya */
+  #listPl_rp,
+  #listPl_usd {
+    max-height: none !important;
+    overflow-y: visible !important;
+    scrollbar-width: none !important;
+  }
+  #listPl_rp::-webkit-scrollbar,
+  #listPl_usd::-webkit-scrollbar {
+    display: none !important;
+  }
 
 </style>
+
+
 	
 </head>
 <body>
@@ -1570,6 +1592,237 @@ window.addEventListener('load', function() {
 });
 </script>
 
-	
+<script>
+(function() {
+  var stateCombo = {
+    rp: { idx: -1, list: [] },
+    usd: { idx: -1, list: [] }
+  };
+
+  function ambilDaftarPlaylist() {
+    var dasar = [
+      { val: 'ALL', label: 'Semua Playlist' },
+      { val: 'Main', label: 'Main' },
+      { val: 'Secondary', label: 'Secondary' },
+      { val: 'Alternative 1', label: 'Alternative 1' },
+      { val: 'Alternative 2', label: 'Alternative 2' },
+      { val: 'Alternative 3', label: 'Alternative 3' },
+      { val: 'Alternative 4', label: 'Alternative 4' }
+    ];
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    dbList.forEach(function(x) {
+      var nm = (x.playlist || '').replace(' Playlist Placement', '').trim();
+      if (nm && !dasar.some(function(d) { return d.val.toLowerCase() === nm.toLowerCase(); })) {
+        dasar.push({ val: nm, label: nm });
+      }
+    });
+    return dasar;
+  }
+
+  function buatHtmlCombo(tipe, borderCol) {
+    return '' +
+      '<div id="boxComboPl_' + tipe + '" style="margin-top:6px; position:relative; width:100%;">' +
+        '<input id="inpPl_' + tipe + '" data-tipe="' + tipe + '" type="text" placeholder="Pilih / cari..." autocomplete="off" style="width:100%; padding:3px 20px 3px 6px; border:1px solid ' + borderCol + '; border-radius:4px; font-size:11px; background:#fff; color:#0f172a; font-weight:bold; box-sizing:border-box;">' +
+        '<span style="position:absolute; right:6px; top:50%; transform:translateY(-50%); pointer-events:none; color:#475569; font-size:9px;">&#9662;</span>' +
+        '<div id="listPl_' + tipe + '" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #cbd5e1; border-radius:4px; max-height:145px; overflow-y:auto; z-index:9999; display:none; box-shadow:0 4px 10px rgba(0,0,0,0.15);"></div>' +
+      '</div>';
+  }
+
+  function pasangDiKartuHijauDanKuning() {
+    var kRp = document.getElementById('kBoxRp') || document.getElementById('kSaldoRp');
+    var kUsd = document.getElementById('kBoxUsd') || document.getElementById('kSaldoUsd');
+
+    if (!kRp || !kUsd) {
+      document.querySelectorAll('#pLive div').forEach(function(d) {
+        var bg = (d.style && d.style.background || '').toLowerCase();
+        if (!kRp && (bg.indexOf('#f0fdf4') !== -1 || bg.indexOf('#dcfce7') !== -1)) kRp = d;
+        if (!kUsd && (bg.indexOf('#fefce8') !== -1 || bg.indexOf('#fef9c3') !== -1)) kUsd = d;
+      });
+    } else {
+      kRp = kRp.parentElement;
+      kUsd = kUsd.parentElement;
+    }
+
+    if (kRp && !document.getElementById('boxComboPl_rp')) {
+      kRp.insertAdjacentHTML('beforeend', buatHtmlCombo('rp', '#86efac'));
+    }
+    if (kUsd && !document.getElementById('boxComboPl_usd')) {
+      kUsd.insertAdjacentHTML('beforeend', buatHtmlCombo('usd', '#fde047'));
+    }
+  }
+
+  function perbaruiTeksBulanBerjalanDiKartu(kartuEl, teksBaru) {
+    if (!kartuEl) return;
+    kartuEl.querySelectorAll('div, span').forEach(function(el) {
+      if (el.children.length === 0 && (el.textContent || '').indexOf('Bulan Berjalan:') !== -1) {
+        el.textContent = teksBaru;
+      }
+    });
+  }
+
+  window.hitungPerKolomExpBulanDepan = function() {
+    var panelLive = document.getElementById('pLive') || document;
+    var inpBln = panelLive.querySelector('input[type="month"]');
+    var now = new Date();
+    var thnIni = inpBln && inpBln.value ? Number(inpBln.value.slice(0, 4)) : now.getFullYear();
+    var blnIni = inpBln && inpBln.value ? Number(inpBln.value.slice(5, 7)) : (now.getMonth() + 1);
+
+    // Periode expired bulan berikutnya (misal Nov -> 1 Des s/d 31 Des)
+    var dtExp = new Date(thnIni, blnIni, 1);
+    var targetExpYm = dtExp.getFullYear() + '-' + String(dtExp.getMonth() + 1).padStart(2, '0');
+
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    var admMap = st.admin || {};
+
+    ['rp', 'usd'].forEach(function(tipe) {
+      var inp = document.getElementById('inpPl_' + tipe);
+      var boxCombo = document.getElementById('boxComboPl_' + tipe);
+      if (!inp || !boxCombo) return;
+
+      var teks = (inp.value || '').trim().toLowerCase();
+      var pilihan = (teks === '' || teks === 'semua playlist') ? 'all' : teks;
+
+      var sum = 0, pot = 0, cekInv = {};
+      dbList.forEach(function(x) {
+        if ((x.selesai || '').slice(0, 7) !== targetExpYm) return;
+
+        var isUsd = (x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+        if (tipe === 'rp' && isUsd) return;
+        if (tipe === 'usd' && !isUsd) return;
+
+        var plDb = (x.playlist || '').replace(' Playlist Placement', '').trim().toLowerCase();
+        if (pilihan !== 'all' && plDb !== pilihan && plDb.indexOf(pilihan) === -1) return;
+
+        sum += Number(x.sub || 0);
+
+        var kunci = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '') + '|' + pilihan;
+        var kunciAsli = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+        if (!cekInv[kunci]) {
+          cekInv[kunci] = true;
+          pot += Number(admMap[kunciAsli] || 0);
+        }
+      });
+
+      var bersih = Math.max(0, sum - pot);
+      var nominalFmt = tipe === 'rp'
+        ? ('Rp ' + bersih.toLocaleString('id-ID'))
+        : ('$ ' + bersih.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+      perbaruiTeksBulanBerjalanDiKartu(boxCombo.parentElement, 'Bulan Berjalan: ' + nominalFmt);
+    });
+  };
+
+  function sorotItem(tipe) {
+    var listEl = document.getElementById('listPl_' + tipe);
+    if (!listEl) return;
+    var idx = stateCombo[tipe].idx;
+    Array.from(listEl.children).forEach(function(el, i) {
+      el.style.background = (i === idx) ? '#0077c8' : '#fff';
+      el.style.color = (i === idx) ? '#fff' : '#1e293b';
+      if (i === idx) el.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  function pilihItem(tipe, item) {
+    var inp = document.getElementById('inpPl_' + tipe);
+    var listEl = document.getElementById('listPl_' + tipe);
+    if (!inp || !listEl) return;
+    inp.value = item.val === 'ALL' ? '' : item.label;
+    listEl.style.display = 'none';
+    stateCombo[tipe].idx = -1;
+    window.hitungPerKolomExpBulanDepan();
+  }
+
+  function showList(tipe, q) {
+    var listEl = document.getElementById('listPl_' + tipe);
+    if (!listEl) return;
+    var semua = ambilDaftarPlaylist();
+    var hasil = semua.filter(function(item) {
+      return item.label.toLowerCase().indexOf((q || '').toLowerCase()) !== -1;
+    });
+    stateCombo[tipe].list = hasil;
+    stateCombo[tipe].idx = -1;
+    listEl.innerHTML = '';
+
+    if (!hasil.length) {
+      listEl.style.display = 'none';
+      return;
+    }
+
+    hasil.forEach(function(item, i) {
+      var opt = document.createElement('div');
+      opt.textContent = item.label;
+      opt.style.cssText = 'padding:5px 7px; cursor:pointer; font-size:11px; color:#1e293b; font-weight:normal;';
+      opt.onmouseover = function() { stateCombo[tipe].idx = i; sorotItem(tipe); };
+      opt.onmousedown = function(e) { e.preventDefault(); pilihItem(tipe, item); };
+      listEl.appendChild(opt);
+    });
+    listEl.style.display = 'block';
+  }
+
+  document.addEventListener('focusin', function(e) {
+    var tipe = e.target && e.target.getAttribute('data-tipe');
+    if (tipe) showList(tipe, '');
+  });
+
+  document.addEventListener('input', function(e) {
+    var tipe = e.target && e.target.getAttribute('data-tipe');
+    if (tipe) {
+      showList(tipe, e.target.value);
+      window.hitungPerKolomExpBulanDepan();
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    var tipe = e.target && e.target.getAttribute('data-tipe');
+    if (!tipe) return;
+    var listEl = document.getElementById('listPl_' + tipe);
+    var daftar = stateCombo[tipe].list;
+    if (!listEl || listEl.style.display !== 'block' || !daftar.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      stateCombo[tipe].idx = (stateCombo[tipe].idx + 1) % daftar.length;
+      sorotItem(tipe);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      stateCombo[tipe].idx = (stateCombo[tipe].idx - 1 + daftar.length) % daftar.length;
+      sorotItem(tipe);
+    } else if (e.key === 'Enter' && stateCombo[tipe].idx >= 0) {
+      e.preventDefault();
+      pilihItem(tipe, daftar[stateCombo[tipe].idx]);
+    } else if (e.key === 'Escape') {
+      listEl.style.display = 'none';
+    }
+  });
+
+  document.addEventListener('focusout', function(e) {
+    var tipe = e.target && e.target.getAttribute('data-tipe');
+    if (tipe) {
+      setTimeout(function() {
+        var listEl = document.getElementById('listPl_' + tipe);
+        if (listEl) listEl.style.display = 'none';
+      }, 150);
+    }
+  });
+
+  window.addEventListener('load', function() {
+    pasangDiKartuHijauDanKuning();
+    window.hitungPerKolomExpBulanDepan();
+    setTimeout(function() {
+      pasangDiKartuHijauDanKuning();
+      window.hitungPerKolomExpBulanDepan();
+    }, 800);
+  });
+
+  document.addEventListener('click', function() {
+    setTimeout(function() {
+      pasangDiKartuHijauDanKuning();
+      window.hitungPerKolomExpBulanDepan();
+    }, 50);
+  });
+})();
+</script>
 </body>
 </html>
