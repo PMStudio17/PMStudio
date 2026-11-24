@@ -1865,7 +1865,7 @@ window.addEventListener('load', function() {
 
   function mulaiSinkronFirebase() {
     try {
-      var dbHost = 'https://' + 'pm-studio-17-default-rtdb.asia-southeast1.firebasedatabase.app';
+      var dbHost = ['https:/', 'pm-studio-17-default-rtdb.asia-southeast1.firebasedatabase.app'].join('/');
       if (!firebase.apps.length) {
         firebase.initializeApp({ databaseURL: dbHost });
       }
@@ -1944,18 +1944,12 @@ window.addEventListener('load', function() {
   }
 
   setStatusCloud('Cloud: Menghubungkan...', '#38bdf8');
-  var base = 'https://' + '://gstatic.com';
+    var base = ['https:/', 'www.gstatic.com', 'firebasejs', '9.23.0', ''].join('/');
   muatScript(base + 'firebase-app-compat.js', function() {
     muatScript(base + 'firebase-database-compat.js', mulaiSinkronFirebase);
   });
 })();
 </script>
-
-  }
-})();
-</script>
-
-
 	
 </body>
 </html>
