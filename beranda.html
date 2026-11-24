@@ -1825,8 +1825,7 @@ window.addEventListener('load', function() {
 })();
 </script>
 
-	<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
+	
 <script>
 (function() {
   var sedangTarik = false;
@@ -1856,84 +1855,102 @@ window.addEventListener('load', function() {
     return paket;
   }
 
-  try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp({
-        databaseURL: 'https://firebasedatabase.app'
-      });
-    }
-    var dbRef = firebase.database().ref('pms_cloud_sync');
+  function muatScript(url, cb) {
+    var s = document.createElement('script');
+    s.src = url;
+    s.onload = cb;
+    s.onerror = function() { setStatusCloud('Cloud: Gagal muat SDK', '#f87171'); };
+    document.head.appendChild(s);
+  }
 
-    function kirimKeFirebase() {
-      if (sedangTarik) return;
-      var paket = kumpulkanSemuaData();
-      if (!Object.keys(paket).length) return;
+  function mulaiSinkronFirebase() {
+    try {
+      var dbHost = 'https://' + 'pm-studio-17-default-rtdb.asia-southeast1.firebasedatabase.app';
+      if (!firebase.apps.length) {
+        firebase.initializeApp({ databaseURL: dbHost });
+      }
+      var dbRef = firebase.database().ref('pms_cloud_sync');
 
-      var str = JSON.stringify(paket);
-      if (str === snapshotTerakhir) return;
+      function kirimKeFirebase() {
+        if (sedangTarik) return;
+        var paket = kumpulkanSemuaData();
+        if (!Object.keys(paket).length) return;
 
-      setStatusCloud('Cloud: Menyimpan...', '#facc15');
-      dbRef.set(paket)
-        .then(function() {
-          snapshotTerakhir = str;
+        var str = JSON.stringify(paket);
+        if (str === snapshotTerakhir) return;
+
+        setStatusCloud('Cloud: Menyimpan...', '#facc15');
+        dbRef.set(paket)
+          .then(function() {
+            snapshotTerakhir = str;
+            setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
+          })
+          .catch(function(err) {
+            setStatusCloud('Cloud: Gagal (' + err.message + ')', '#f87171');
+          });
+      }
+
+      dbRef.on('value', function(snap) {
+        var data = snap.val();
+        if (!data || typeof data !== 'object') {
+          var awal = kumpulkanSemuaData();
+          if (Object.keys(awal).length > 0) kirimKeFirebase();
+          else setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
+          return;
+        }
+
+        var strBaru = JSON.stringify(data);
+        if (strBaru === snapshotTerakhir) {
           setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
-        })
-        .catch(function(err) {
-          setStatusCloud('Cloud: Gagal (' + err.message + ')', '#f87171');
+          return;
+        }
+
+        sedangTarik = true;
+        snapshotTerakhir = strBaru;
+        Object.keys(data).forEach(function(k) {
+          if (k.indexOf('pms_') === 0 && data[k] !== null) {
+            localStorage.setItem(k, typeof data[k] === 'string' ? data[k] : JSON.stringify(data[k]));
+          }
         });
-    }
-
-    // Dengar perubahan secara REAL-TIME seketika dari Firebase
-    dbRef.on('value', function(snap) {
-      var data = snap.val();
-      if (!data || typeof data !== 'object') {
-        var awal = kumpulkanSemuaData();
-        if (Object.keys(awal).length > 0) kirimKeFirebase();
-        else setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
-        return;
-      }
-
-      var strBaru = JSON.stringify(data);
-      if (strBaru === snapshotTerakhir) {
+        sedangTarik = false;
         setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
-        return;
-      }
 
-      sedangTarik = true;
-      snapshotTerakhir = strBaru;
-      Object.keys(data).forEach(function(k) {
-        if (k.indexOf('pms_') === 0 && data[k] !== null) {
-          localStorage.setItem(k, typeof data[k] === 'string' ? data[k] : JSON.stringify(data[k]));
+        if (typeof renderClients === 'function') renderClients();
+        if (typeof renderClient === 'function') renderClient();
+        if (typeof renderAll === 'function') renderAll();
+        if (typeof renderLive === 'function') renderLive();
+        if (typeof renderMgmt === 'function') renderMgmt();
+        if (typeof hitungSlipSimple === 'function') hitungSlipSimple();
+      }, function(err) {
+        setStatusCloud('Cloud: Gagal (' + err.message + ')', '#f87171');
+      });
+
+      var origSet = localStorage.setItem;
+      localStorage.setItem = function(key, val) {
+        origSet.apply(this, arguments);
+        if (!sedangTarik && key && key.indexOf('pms_') === 0) {
+          setTimeout(kirimKeFirebase, 150);
+        }
+      };
+
+      document.addEventListener('click', function(e) {
+        if (e.target && e.target.tagName === 'BUTTON') {
+          setTimeout(kirimKeFirebase, 300);
         }
       });
-      sedangTarik = false;
-      setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
+    } catch (e) {
+      setStatusCloud('Cloud: Error (' + e.message + ')', '#f87171');
+    }
+  }
 
-      if (typeof renderClients === 'function') renderClients();
-      if (typeof renderClient === 'function') renderClient();
-      if (typeof renderAll === 'function') renderAll();
-      if (typeof renderLive === 'function') renderLive();
-      if (typeof renderMgmt === 'function') renderMgmt();
-      if (typeof hitungSlipSimple === 'function') hitungSlipSimple();
-    }, function(err) {
-      setStatusCloud('Cloud: Gagal (' + err.message + ')', '#f87171');
-    });
+  setStatusCloud('Cloud: Menghubungkan...', '#38bdf8');
+  var base = 'https://' + '://gstatic.com';
+  muatScript(base + 'firebase-app-compat.js', function() {
+    muatScript(base + 'firebase-database-compat.js', mulaiSinkronFirebase);
+  });
+})();
+</script>
 
-    var origSet = localStorage.setItem;
-    localStorage.setItem = function(key, val) {
-      origSet.apply(this, arguments);
-      if (!sedangTarik && key && key.indexOf('pms_') === 0) {
-        setTimeout(kirimKeFirebase, 150);
-      }
-    };
-
-    document.addEventListener('click', function(e) {
-      if (e.target && e.target.tagName === 'BUTTON') {
-        setTimeout(kirimKeFirebase, 300);
-      }
-    });
-  } catch (e) {
-    setStatusCloud('Cloud: Error (' + e.message + ')', '#f87171');
   }
 })();
 </script>
