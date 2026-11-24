@@ -51,12 +51,20 @@
     overflow-x: auto;
   }
 
-  .panel, #pClient, #pInput, #pInvoice, #pRekap, #pLive, #pMgmt, #pSlip {
-    max-width: 1180px !important;
-    width: 95% !important;
-    margin: 14px auto 24px auto !important;
-    box-sizing: border-box !important;
-  }
+  .tabs, .nav-tabs, #tabBar {
+  max-width: none !important;
+  width: auto !important;
+  margin-left: 10px !important;
+  margin-right: 10px !important;
+}
+
+.panel, #pClient, #pInput, #pInvoice, #pRekap, #pLive, #pMgmt, #pSlip {
+  max-width: none !important;
+  width: auto !important;
+  margin: 12px 10px 24px 10px !important;
+  box-sizing: border-box !important;
+}
+
 
   /* Pastikan tabel di dalam Report Live, Saldo Pendapatan, Data Management tetap rapi saat di-zoom */
   .panel table, #pLive table, #pMgmt table {
