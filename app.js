@@ -533,5 +533,10 @@ window.addEventListener('load', function() {
   inp.onblur = function() { setTimeout(function() { list.style.display = 'none'; }, 150); };
 })();
 
+// Otomatis masukkan semua panel ke dalam wadah .wrap agar sejajar & ikut menyusut saat zoom
+document.addEventListener('DOMContentLoaded', function() {
+  var wrap = document.querySelector('.wrap');
+  if (wrap) document.querySelectorAll('.panel').forEach(function(p) { wrap.appendChild(p); });
+});
 
 
