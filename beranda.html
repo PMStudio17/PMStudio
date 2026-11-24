@@ -1508,5 +1508,106 @@ window.addEventListener('load', function() {
 })();
 </script>
 
+<script>
+window.addEventListener('load', function() {
+  var pRekap = document.getElementById('pRekap');
+  if (!pRekap) return;
+
+  // 1. Ubah tombol hijau "Download CSV (CSV)" menjadi "Download Excel (.xls)"
+  var btnExcel = null;
+  pRekap.querySelectorAll('button').forEach(function(b) {
+    if ((b.textContent || '').toUpperCase().indexOf('DOWNLOAD') !== -1) {
+      btnExcel = b;
+      b.textContent = 'Download Excel (.xls)';
+    }
+  });
+  if (!btnExcel) return;
+
+  // 2. Fungsi ekspor langsung ke file Excel (.xls) rapi berkolom & berwarna
+  function eksporKeExcelRapi() {
+    var list = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    if (!list.length) {
+      alert('Belum ada data untuk diunduh.');
+      return;
+    }
+
+    var htmlExcel =
+      '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://w3.org">' +
+      '<head><meta charset="UTF-8">' +
+      '<style>' +
+        'table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt; }' +
+        'th { background-color: #bae6fd; color: #0f172a; font-weight: bold; border: 1px solid #000000; padding: 8px; text-align: center; }' +
+        'td { border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; }' +
+        '.c { text-align: center; }' +
+        '.r { text-align: right; }' +
+      '</style></head><body>' +
+      '<table>' +
+        '<thead><tr>' +
+          '<th>No</th>' +
+          '<th>No Invoice</th>' +
+          '<th>Tgl Invoice</th>' +
+          '<th>Client</th>' +
+          '<th>Email</th>' +
+          '<th>Type</th>' +
+          '<th>Artis</th>' +
+          '<th>Judul Lagu</th>' +
+          '<th>Durasi</th>' +
+          '<th>Periode</th>' +
+          '<th>Join Date</th>' +
+          '<th>Cut Off</th>' +
+          '<th>Rate</th>' +
+          '<th>Subtotal</th>' +
+          '<th>Playlist</th>' +
+        '</tr></thead><tbody>';
+
+    list.forEach(function(x, i) {
+      var isUsd = (x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+      var sym = isUsd ? '$ ' : 'Rp ';
+      var rateFmt = sym + Number(x.rate || 0).toLocaleString('id-ID', isUsd ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : {});
+      var subFmt = sym + Number(x.sub || 0).toLocaleString('id-ID', isUsd ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : {});
+
+      htmlExcel +=
+        '<tr>' +
+          '<td class="c">' + (i + 1) + '</td>' +
+          '<td>' + (x.noInv || '') + '</td>' +
+          '<td class="c">' + (x.tglInv || '') + '</td>' +
+          '<td>' + (x.client || '') + '</td>' +
+          '<td>' + (x.email || '') + '</td>' +
+          '<td>' + (x.type || '') + '</td>' +
+          '<td>' + (x.artis || '') + '</td>' +
+          '<td>' + (x.lagu || '') + '</td>' +
+          '<td class="c">' + (x.durasi || '') + '</td>' +
+          '<td class="c">' + (x.periode || '') + '</td>' +
+          '<td class="c">' + (x.mulai || '') + '</td>' +
+          '<td class="c">' + (x.selesai || '') + '</td>' +
+          '<td class="r">' + rateFmt + '</td>' +
+          '<td class="r">' + subFmt + '</td>' +
+          '<td>' + (x.playlist || '') + '</td>' +
+        '</tr>';
+    });
+
+    htmlExcel += '</tbody></table></body></html>';
+
+    var blob = new Blob(['\ufeff', htmlExcel], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'Rekap_Placement_Pustaka_Musik_Studio.xls';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Ganti klik tombol bawaan dengan ekspor Excel rapi
+  btnExcel.removeAttribute('onclick');
+  btnExcel.onclick = function(e) {
+    e.preventDefault();
+    eksporKeExcelRapi();
+  };
+});
+</script>
+
+	
 </body>
 </html>
