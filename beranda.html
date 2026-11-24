@@ -2078,6 +2078,22 @@ window.addEventListener('load', function() {
 })();
 </script>
 
+<script>
+(function() {
+  function perbaikiTotalSaldoMinus() {
+    var pLive = document.getElementById('pLive') || document;
+    pLive.querySelectorAll('div, span').forEach(function(el) {
+      if (el.children.length === 0) {
+        var txt = (el.textContent || '').trim();
+        if (txt.indexOf('Rp -') === 0 || txt.indexOf('Rp-') === 0) {
+          el.textContent = 'Rp 0';
+        }
+      }
+    });
+  }
+  setInterval(perbaikiTotalSaldoMinus, 200);
+})();
+</script>
 
 
 </body>
