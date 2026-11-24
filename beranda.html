@@ -1824,5 +1824,120 @@ window.addEventListener('load', function() {
   });
 })();
 </script>
+
+	<script>
+(function() {
+  var FB_URL = 'https://firebasedatabase.app';
+  var sedangTarik = false;
+  var snapshotTerakhir = '';
+
+  function setStatusCloud(teks, warna) {
+    var badge = document.getElementById('badgeSyncCloud');
+    if (!badge) {
+      var topBar = document.querySelector('.top') || document.body;
+      badge = document.createElement('span');
+      badge.id = 'badgeSyncCloud';
+      badge.style.cssText = 'font-size:11px; font-weight:bold; padding:3px 8px; border-radius:4px; margin-left:10px; background:#1e293b; color:#38bdf8;';
+      topBar.appendChild(badge);
+    }
+    badge.textContent = teks;
+    if (warna) badge.style.color = warna;
+  }
+
+  function kumpulkanSemuaData() {
+    var paket = {};
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('pms_') === 0) {
+        paket[k] = localStorage.getItem(k);
+      }
+    }
+    return paket;
+  }
+
+  function kirimKeFirebase() {
+    if (sedangTarik) return;
+    var paket = kumpulkanSemuaData();
+    if (!Object.keys(paket).length) return;
+
+    var str = JSON.stringify(paket);
+    if (str === snapshotTerakhir) return;
+
+    setStatusCloud('Cloud: Menyimpan...', '#facc15');
+    fetch(FB_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: str
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      snapshotTerakhir = str;
+      setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
+    })
+    .catch(function(err) {
+      setStatusCloud('Cloud: Gagal (' + err.message + ')', '#f87171');
+    });
+  }
+
+  function tarikDariFirebase() {
+    fetch(FB_URL + '?t=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data || typeof data !== 'object') {
+          setStatusCloud('Cloud: Siap', '#38bdf8');
+          return;
+        }
+        var strBaru = JSON.stringify(data);
+        if (!strBaru || strBaru === '{}' || strBaru === snapshotTerakhir) {
+          setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
+          return;
+        }
+
+        sedangTarik = true;
+        snapshotTerakhir = strBaru;
+        Object.keys(data).forEach(function(k) {
+          if (k.indexOf('pms_') === 0 && data[k] !== null) {
+            localStorage.setItem(k, typeof data[k] === 'string' ? data[k] : JSON.stringify(data[k]));
+          }
+        });
+        sedangTarik = false;
+        setStatusCloud('Cloud: Data Diperbarui ✓', '#4ade80');
+
+        if (typeof renderClients === 'function') renderClients();
+        if (typeof renderClient === 'function') renderClient();
+        if (typeof renderAll === 'function') renderAll();
+        if (typeof renderLive === 'function') renderLive();
+        if (typeof renderMgmt === 'function') renderMgmt();
+        if (typeof hitungSlipSimple === 'function') hitungSlipSimple();
+      })
+      .catch(function() { sedangTarik = false; });
+  }
+
+  var origSet = localStorage.setItem;
+  localStorage.setItem = function(key, val) {
+    origSet.apply(this, arguments);
+    if (!sedangTarik && key && key.indexOf('pms_') === 0) {
+      setTimeout(kirimKeFirebase, 150);
+    }
+  };
+
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.tagName === 'BUTTON') {
+      setTimeout(kirimKeFirebase, 300);
+    }
+  });
+
+  window.addEventListener('load', function() {
+    var awal = kumpulkanSemuaData();
+    if (Object.keys(awal).length > 0) {
+      kirimKeFirebase();
+    } else {
+      tarikDariFirebase();
+    }
+    setInterval(tarikDariFirebase, 3000);
+  });
+})();
+</script>
+	
 </body>
 </html>
