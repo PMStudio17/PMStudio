@@ -42,6 +42,37 @@
   }
 
 </style>
+
+<style>
+  /* Samakan ukuran kotak putih & skala zoom untuk semua tab agar seperti Input Data */
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+  }
+
+  .panel, #pClient, #pInput, #pInvoice, #pRekap, #pLive, #pMgmt, #pSlip {
+    max-width: 1180px !important;
+    width: 95% !important;
+    margin: 14px auto 24px auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Pastikan tabel di dalam Report Live, Saldo Pendapatan, Data Management tetap rapi saat di-zoom */
+  .panel table, #pLive table, #pMgmt table {
+    width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  /* Skala tampilan 2 kartu Slip Gaji tetap proporsional saat zoom in / zoom out */
+  #box2Slip {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+</style>
+
+	
 </head>
 <body>
 <div class="wrap">
