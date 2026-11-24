@@ -727,11 +727,29 @@ if ((x.selesai || '').slice(0, 7) !== blnExp) return;
   var konvRp = Math.round(totPp * kurs);
   var totSemua = Math.max(0, totDb + konvRp - admTarik);
 
-  var mgmt = JSON.parse(localStorage.getItem('pms_management_v1') || '[]')
+  var rawMgmt = JSON.parse(localStorage.getItem('pms_management_v1') || '[]');
+  if (!rawMgmt.length) {
+    var panelMgmt = document.getElementById('pMgmt') || document.getElementById('pManagement') || document;
+    panelMgmt.querySelectorAll('table tbody tr').forEach(function(tr) {
+      var tds = tr.querySelectorAll('td');
+      if (tds.length >= 5) {
+        var nimTxt = (tds.item(1).textContent || '').trim();
+        var namaTxt = (tds.item(2).textContent || '').trim();
+        var jabTxt = (tds.item(3).textContent || '').trim();
+        var persenNum = parseFloat((tds.item(4).textContent || '').replace(/[^0-9.]/g, '')) || 0;
+        if (nimTxt && namaTxt && persenNum > 0) {
+          rawMgmt.push({ nim: nimTxt, nama: namaTxt, jabatan: jabTxt, persen: persenNum });
+        }
+      }
+    });
+  }
+
+  var mgmt = rawMgmt
     .slice()
     .sort(function(a, b) { return String(a.nim || '').localeCompare(String(b.nim || ''), undefined, { numeric: true }); })
     .filter(function(m) { return Number(m.persen) > 0; });
 
+	
   function rp(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function usd(n) { return '$ ' + Number(n || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
