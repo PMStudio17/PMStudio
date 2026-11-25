@@ -2062,23 +2062,65 @@ window.addEventListener('load', function() {
 })();
 </script>
 
-<!-- === PERBAIKAN AKURAT TOTAL SALDO BIRU TUA === -->
+<!-- === PERBAIKAN AKURAT NET INCOME PER BARIS & TOTAL SALDO === -->
 <script>
 (function() {
   function angka(s) {
     return parseFloat(String(s || '').replace(/[^0-9-]/g, '')) || 0;
   }
+  function angkaUsd(s) {
+    var c = String(s || '').replace(/[^0-9.,-]/g, '');
+    if (c.indexOf(',') !== -1 && c.indexOf('.') !== -1) c = c.replace(/\./g, '').replace(',', '.');
+    else if (c.indexOf(',') !== -1) c = c.replace(',', '.');
+    return parseFloat(c) || 0;
+  }
+  function fmtIdr(n) {
+    return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
+  }
 
-  function perbaikiBiruDongker() {
-    var boxRp = null, boxKonv = null, boxTotal = null;
+  function rapikanDanHitung() {
+    var totRp = 0, totUsd = 0;
 
+    document.querySelectorAll('table tbody tr').forEach(function(tr) {
+      var td = tr.querySelectorAll('td');
+      if (td.length < 9) return;
+
+      var teksNom = (td.textContent || '').trim();
+      var isUsd = teksNom.indexOf('$') !== -1;
+      var nom = isUsd ? angkaUsd(teksNom) : angka(teksNom);
+      var inpAdm = td.querySelector('input');
+      var adm = inpAdm ? (isUsd ? angkaUsd(inpAdm.value) : angka(inpAdm.value)) : (isUsd ? angkaUsd(td.textContent) : angka(td.textContent));
+      var net = Math.max(0, nom - adm);
+
+      // Ubah hanya teks angkanya tanpa merusak span kiri-kanan (Rp di kiri, angka di kanan)
+      var spanKanan = td.querySelector('span:last-child, div:last-child');
+      var teksAngka = isUsd
+        ? net.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : Math.round(net).toLocaleString('id-ID');
+
+      if (spanKanan && spanKanan.children.length === 0) {
+        if (spanKanan.textContent.trim() !== teksAngka) spanKanan.textContent = teksAngka;
+      } else {
+        td.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;"><span>' + (isUsd ? '$' : 'Rp') + '</span><span>' + teksAngka + '</span></div>';
+      }
+
+      if (isUsd) totUsd += net;
+      else totRp += net;
+    });
+
+    var boxRp = null, boxUsd = null, boxKonv = null, boxTotal = null, inpKurs = null;
     document.querySelectorAll('div').forEach(function(d) {
       var t = (d.textContent || '').trim();
       if (t.indexOf('SALDO RUPIAH') === 0) {
         d.querySelectorAll('div').forEach(function(c) {
           if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !boxRp) boxRp = c;
         });
+      } else if (t.indexOf('SALDO DOLLAR') === 0) {
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('$ ') === 0 && !boxUsd) boxUsd = c;
+        });
       } else if (t.indexOf('KONVERSI') === 0 && d.querySelector('input')) {
+        inpKurs = d.querySelector('input');
         d.querySelectorAll('div').forEach(function(c) {
           if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !boxKonv) boxKonv = c;
         });
@@ -2089,18 +2131,23 @@ window.addEventListener('load', function() {
       }
     });
 
-    if (boxRp && boxTotal) {
-      var tot = angka(boxRp.textContent) + (boxKonv ? angka(boxKonv.textContent) : 0);
-      var teksBenar = 'Rp ' + Math.round(tot).toLocaleString('id-ID');
-      if (boxTotal.textContent.trim() !== teksBenar) {
-        boxTotal.textContent = teksBenar;
-      }
+    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 15800) : 15800;
+    var nilaiKonv = Math.round(totUsd * kurs);
+    var grandTotal = totRp + nilaiKonv;
+
+    if (boxRp && boxRp.textContent.trim() !== fmtIdr(totRp)) boxRp.textContent = fmtIdr(totRp);
+    if (boxUsd) {
+      var strUsd = '$ ' + totUsd.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (boxUsd.textContent.trim() !== strUsd) boxUsd.textContent = strUsd;
     }
+    if (boxKonv && boxKonv.textContent.trim() !== fmtIdr(nilaiKonv)) boxKonv.textContent = fmtIdr(nilaiKonv);
+    if (boxTotal && boxTotal.textContent.trim() !== fmtIdr(grandTotal)) boxTotal.textContent = fmtIdr(grandTotal);
   }
 
-  setInterval(perbaikiBiruDongker, 200);
+  setInterval(rapikanDanHitung, 200);
 })();
 </script>
+
 
 
 </body>
