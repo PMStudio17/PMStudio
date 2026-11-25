@@ -2062,10 +2062,10 @@ window.addEventListener('load', function() {
 })();
 </script>
 
-<!-- === PERBAIKAN AKURAT NET INCOME PER BARIS & TOTAL SALDO === -->
+<!-- === PERBAIKAN AKURAT NET INCOME & TOTAL SALDO (100% BEKERJA) === -->
 <script>
 (function() {
-  function angka(s) {
+  function angkaIdr(s) {
     return parseFloat(String(s || '').replace(/[^0-9-]/g, '')) || 0;
   }
   function angkaUsd(s) {
@@ -2082,26 +2082,30 @@ window.addEventListener('load', function() {
     var totRp = 0, totUsd = 0;
 
     document.querySelectorAll('table tbody tr').forEach(function(tr) {
-      var td = tr.querySelectorAll('td');
-      if (td.length < 9) return;
+      var sel = tr.querySelectorAll('td');
+      if (sel.length < 9) return;
 
-      var teksNom = (td.textContent || '').trim();
+      var tdNom = sel.item(6);
+      var tdAdm = sel.item(7);
+      var tdNet = sel.item(8);
+
+      var teksNom = (tdNom.textContent || '').trim();
       var isUsd = teksNom.indexOf('$') !== -1;
-      var nom = isUsd ? angkaUsd(teksNom) : angka(teksNom);
-      var inpAdm = td.querySelector('input');
-      var adm = inpAdm ? (isUsd ? angkaUsd(inpAdm.value) : angka(inpAdm.value)) : (isUsd ? angkaUsd(td.textContent) : angka(td.textContent));
-      var net = Math.max(0, nom - adm);
+      var nom = isUsd ? angkaUsd(teksNom) : angkaIdr(teksNom);
 
-      // Ubah hanya teks angkanya tanpa merusak span kiri-kanan (Rp di kiri, angka di kanan)
-      var spanKanan = td.querySelector('span:last-child, div:last-child');
+      var inpAdm = tdAdm.querySelector('input');
+      var adm = inpAdm
+        ? (isUsd ? angkaUsd(inpAdm.value) : angkaIdr(inpAdm.value))
+        : (isUsd ? angkaUsd(tdAdm.textContent) : angkaIdr(tdAdm.textContent));
+
+      var net = Math.max(0, nom - adm);
       var teksAngka = isUsd
         ? net.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
         : Math.round(net).toLocaleString('id-ID');
 
-      if (spanKanan && spanKanan.children.length === 0) {
-        if (spanKanan.textContent.trim() !== teksAngka) spanKanan.textContent = teksAngka;
-      } else {
-        td.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;"><span>' + (isUsd ? '$' : 'Rp') + '</span><span>' + teksAngka + '</span></div>';
+      var rapiHtml = '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;"><span>' + (isUsd ? '$' : 'Rp') + '</span><span>' + teksAngka + '</span></div>';
+      if (tdNet.innerHTML !== rapiHtml) {
+        tdNet.innerHTML = rapiHtml;
       }
 
       if (isUsd) totUsd += net;
@@ -2147,6 +2151,7 @@ window.addEventListener('load', function() {
   setInterval(rapikanDanHitung, 200);
 })();
 </script>
+
 
 
 
