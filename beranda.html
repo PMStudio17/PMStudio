@@ -1918,6 +1918,7 @@ window.addEventListener('load', function() {
         });
         sedangTarik = false;
         setStatusCloud('Cloud: Tersinkron ✓', '#4ade80');
+		       if (!sessionStorage.getItem('pms_first_sync_done')) { sessionStorage.setItem('pms_first_sync_done', '1'); location.reload(); return; }
 
         if (typeof renderClients === 'function') renderClients();
         if (typeof renderClient === 'function') renderClient();
