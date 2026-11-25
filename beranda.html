@@ -64,13 +64,57 @@
   /* Sembunyikan indikator status cloud agar tombol Logout tetap rapat di pojok kanan */
   #badgeSyncCloud { display: none !important; }
 
-	
 </style>
 
 
 	
 </head>
 <body>
+
+	 <!-- === SISTEM LOGIN PUSTAKA MUSIK STUDIO (LENGKAP FINAL) === -->
+<div id="layarLoginPMS" style="position:fixed; inset:0; background:#0b2545; z-index:999999; display:flex; align-items:center; justify-content:center; padding:14px; font-family:Arial,sans-serif;">
+  <div style="background:#ffffff; width:100%; max-width:520px; border-radius:12px; overflow:hidden; display:flex; flex-wrap:wrap; box-shadow:0 14px 34px rgba(0,0,0,0.4);">
+    
+    <!-- Panel Kiri: Biru + Logo Bulat Menyatu Tanpa Sisa Putih -->
+    <div style="flex:1 1 185px; background:#0077c8; color:#ffffff; padding:22px 18px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+      <div style="width:92px; height:92px; border-radius:70%; background:#dbf0fe; padding:0; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; margin-bottom:12px; overflow:hidden;">
+        <img id="imgLogoLoginPMS" src="PMS.png" alt="Logo PM Studio" onerror="(function(img){var ada=document.querySelector('.top img, img[alt*=&quot;PM&quot;], img[src*=&quot;logo&quot;]');if(ada&&ada.src&&ada.src!==img.src){img.src=ada.src;}else{img.style.display='none';img.parentElement.innerHTML='<span style=&quot;font-weight:bold;font-size:20px;color:#0077c8;&quot;>PMS</span>';}})(this)" style="width:100%; height:100%; object-fit:cover; display:block;">
+      </div>
+      <div style="font-size:15px; font-weight:bold; letter-spacing:0.5px; line-height:1.25;">PM STUDIO</div>
+      <div style="font-size:10.5px; color:#e0f2fe; margin-top:5px; line-height:1.35;">Spotify Organic Playlist Curation Services</div>
+    </div>
+
+
+    <!-- Panel Kanan: Form Input Ramping -->
+    <div style="flex:1.35 1 240px; background:#ffffff; padding:22px 22px; display:flex; flex-direction:column; justify-content:center;">
+      
+      <div style="margin-bottom:10px;">
+        <label style="display:block; font-size:11px; font-weight:bold; color:#475569; margin-bottom:4px;">Username</label>
+        <input id="pmsUserLogin" type="text" placeholder="Masukkan username..." autocomplete="username" style="width:100%; padding:8px 10px; border:none; border-bottom:1.5px solid #cbd5e1; background:#eff6ff; border-radius:4px 4px 0 0; font-size:12.5px; color:#0f172a; box-sizing:border-box; outline:none;">
+      </div>
+
+      <div style="margin-bottom:11px;">
+        <label style="display:block; font-size:11px; font-weight:bold; color:#475569; margin-bottom:4px;">Password</label>
+        <div style="position:relative; width:100%;">
+          <input id="pmsPassLogin" type="password" placeholder="Masukkan password..." autocomplete="current-password" style="width:100%; padding:8px 34px 8px 10px; border:none; border-bottom:1.5px solid #cbd5e1; background:#eff6ff; border-radius:4px 4px 0 0; font-size:12.5px; color:#0f172a; box-sizing:border-box; outline:none;">
+          <button type="button" id="btnTogglePwPMS" title="Lihat / Sembunyikan Password" onclick="(function(btn){var i=document.getElementById('pmsPassLogin');if(!i)return;var tampil=i.type==='password';i.type=tampil?'text':'password';btn.style.color=tampil?'#0077c8':'#64748b';i.focus();})(this)" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; padding:3px; cursor:pointer; color:#64748b; display:flex; align-items:center; justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="pmsErrLogin" style="display:none; background:#fee2e2; color:#b91c1c; font-size:11.5px; padding:6px 8px; border-radius:5px; margin-bottom:10px; text-align:center; font-weight:bold;">
+        Username atau Password salah!
+      </div>
+
+      <button id="btnMasukPMS" type="button" style="width:100%; padding:9px; background:#0077c8; color:#ffffff; border:none; border-radius:999px; font-size:13px; font-weight:bold; cursor:pointer; box-shadow:0 3px 10px rgba(0,119,200,0.28);">
+        Submit
+      </button>
+
+    </div>
+  </div>
+</div>
+	
 <div class="wrap">
   <div class="top">
     <div><strong>PUSTAKA MUSIK STUDIO</strong> &mdash; Spotify Organic Playlist Curation Services</div>
@@ -1961,49 +2005,7 @@ window.addEventListener('load', function() {
 <div id="layarLoginPMS" style="position:fixed; inset:0; background:#0b2545; z-index:999999; display:flex; align-items:center; justify-content:center; padding:14px; font-family:Arial,sans-serif;">
   <div style="background:#ffffff; width:100%; max-width:520px; border-radius:12px; overflow:hidden; display:flex; flex-wrap:wrap; box-shadow:0 14px 34px rgba(0,0,0,0.4);">
     
-        <!-- === SISTEM LOGIN PUSTAKA MUSIK STUDIO (LENGKAP FINAL) === -->
-<div id="layarLoginPMS" style="position:fixed; inset:0; background:#0b2545; z-index:999999; display:flex; align-items:center; justify-content:center; padding:14px; font-family:Arial,sans-serif;">
-  <div style="background:#ffffff; width:100%; max-width:520px; border-radius:12px; overflow:hidden; display:flex; flex-wrap:wrap; box-shadow:0 14px 34px rgba(0,0,0,0.4);">
-    
-    <!-- Panel Kiri: Biru + Logo Bulat Menyatu Tanpa Sisa Putih -->
-    <div style="flex:1 1 185px; background:#0077c8; color:#ffffff; padding:22px 18px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
-      <div style="width:92px; height:92px; border-radius:70%; background:#dbf0fe; padding:0; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; margin-bottom:12px; overflow:hidden;">
-        <img id="imgLogoLoginPMS" src="PMS.png" alt="Logo PM Studio" onerror="(function(img){var ada=document.querySelector('.top img, img[alt*=&quot;PM&quot;], img[src*=&quot;logo&quot;]');if(ada&&ada.src&&ada.src!==img.src){img.src=ada.src;}else{img.style.display='none';img.parentElement.innerHTML='<span style=&quot;font-weight:bold;font-size:20px;color:#0077c8;&quot;>PMS</span>';}})(this)" style="width:100%; height:100%; object-fit:cover; display:block;">
-      </div>
-      <div style="font-size:15px; font-weight:bold; letter-spacing:0.5px; line-height:1.25;">PM STUDIO</div>
-      <div style="font-size:10.5px; color:#e0f2fe; margin-top:5px; line-height:1.35;">Spotify Organic Playlist Curation Services</div>
-    </div>
-
-
-    <!-- Panel Kanan: Form Input Ramping -->
-    <div style="flex:1.35 1 240px; background:#ffffff; padding:22px 22px; display:flex; flex-direction:column; justify-content:center;">
-      
-      <div style="margin-bottom:10px;">
-        <label style="display:block; font-size:11px; font-weight:bold; color:#475569; margin-bottom:4px;">Username</label>
-        <input id="pmsUserLogin" type="text" placeholder="Masukkan username..." autocomplete="username" style="width:100%; padding:8px 10px; border:none; border-bottom:1.5px solid #cbd5e1; background:#eff6ff; border-radius:4px 4px 0 0; font-size:12.5px; color:#0f172a; box-sizing:border-box; outline:none;">
-      </div>
-
-      <div style="margin-bottom:11px;">
-        <label style="display:block; font-size:11px; font-weight:bold; color:#475569; margin-bottom:4px;">Password</label>
-        <div style="position:relative; width:100%;">
-          <input id="pmsPassLogin" type="password" placeholder="Masukkan password..." autocomplete="current-password" style="width:100%; padding:8px 34px 8px 10px; border:none; border-bottom:1.5px solid #cbd5e1; background:#eff6ff; border-radius:4px 4px 0 0; font-size:12.5px; color:#0f172a; box-sizing:border-box; outline:none;">
-          <button type="button" id="btnTogglePwPMS" title="Lihat / Sembunyikan Password" onclick="(function(btn){var i=document.getElementById('pmsPassLogin');if(!i)return;var tampil=i.type==='password';i.type=tampil?'text':'password';btn.style.color=tampil?'#0077c8':'#64748b';i.focus();})(this)" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; padding:3px; cursor:pointer; color:#64748b; display:flex; align-items:center; justify-content:center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-          </button>
-        </div>
-      </div>
-
-      <div id="pmsErrLogin" style="display:none; background:#fee2e2; color:#b91c1c; font-size:11.5px; padding:6px 8px; border-radius:5px; margin-bottom:10px; text-align:center; font-weight:bold;">
-        Username atau Password salah!
-      </div>
-
-      <button id="btnMasukPMS" type="button" style="width:100%; padding:9px; background:#0077c8; color:#ffffff; border:none; border-radius:999px; font-size:13px; font-weight:bold; cursor:pointer; box-shadow:0 3px 10px rgba(0,119,200,0.28);">
-        Submit
-      </button>
-
-    </div>
-  </div>
-</div>
+       
 
 <script>
 (function() {
