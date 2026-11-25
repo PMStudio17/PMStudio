@@ -2079,6 +2079,120 @@ window.addEventListener('load', function() {
 })();
 </script>
 
+	<!-- === PERBAIKAN RUMUS NET INCOME PER BARIS & TOTAL SALDO MURNI === -->
+<script>
+(function() {
+  // Bersihkan sisa riwayat pencairan hantu lama sekali jalan agar TOTAL SALDO pas dengan tabel
+  if (!localStorage.getItem('pms_reset_cair_des2026_v1')) {
+    Object.keys(localStorage).forEach(function(k) {
+      if (k.indexOf('cair') !== -1 || k.indexOf('pencairan') !== -1) {
+        localStorage.removeItem(k);
+      }
+    });
+    localStorage.setItem('pms_reset_cair_des2026_v1', 'OK');
+  }
+
+  function parseAngka(str) {
+    var s = String(str || '').trim();
+    if (!s) return 0;
+    if (s.indexOf('$') !== -1) {
+      var u = s.replace(/[^0-9,.-]/g, '');
+      if (u.indexOf(',') !== -1 && u.indexOf('.') !== -1) u = u.replace(/\./g, '').replace(',', '.');
+      else if (u.indexOf(',') !== -1) u = u.replace(',', '.');
+      return parseFloat(u) || 0;
+    }
+    return parseFloat(s.replace(/[^0-9-]/g, '')) || 0;
+  }
+
+  function fmtRp(n) {
+    return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
+  }
+
+  function fmtUsd(n) {
+    return '$ ' + (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function perbaikiPerhitunganTabel() {
+    var pLive = document.getElementById('pLive') || document;
+    var barisList = pLive.querySelectorAll('table tbody tr');
+    if (!barisList || barisList.length === 0) return;
+
+    var totalMurniRp = 0;
+    var totalMurniUsd = 0;
+
+    barisList.forEach(function(tr) {
+      var sel = tr.querySelectorAll('td');
+      if (sel.length < 9) return;
+
+      var tdNominal = sel[6];
+      var tdAdmin = sel[7];
+      var tdNet = sel[8];
+
+      var teksNom = (tdNominal.textContent || '').trim();
+      var isUsd = teksNom.indexOf('$') !== -1;
+
+      var nom = parseAngka(teksNom);
+      var inpAdm = tdAdmin.querySelector('input');
+      var adm = inpAdm ? parseAngka(inpAdm.value) : parseAngka(tdAdmin.textContent);
+
+      var netMurni = Math.max(0, nom - adm);
+
+      // Pastikan kolom NET INCOME per baris selalu murni (NOMINAL - ADMIN), bukan akumulasi baris atas
+      var teksNetSeharusnya = isUsd
+        ? '$ ' + netMurni.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : 'Rp   ' + Math.round(netMurni).toLocaleString('id-ID');
+
+      if (parseAngka(tdNet.textContent) !== Math.round(netMurni) && !isUsd) {
+        tdNet.textContent = teksNetSeharusnya;
+      } else if (isUsd && Math.abs(parseAngka(tdNet.textContent) - netMurni) > 0.001) {
+        tdNet.textContent = teksNetSeharusnya;
+      }
+
+      if (isUsd) totalMurniUsd += netMurni;
+      else totalMurniRp += netMurni;
+    });
+
+    // Perbarui kartu SALDO RUPIAH, SALDO DOLLAR, KONVERSI, dan TOTAL SALDO agar 100% pas
+    var elRp = null, elUsd = null, elKonv = null, elTotal = null, inpKurs = null;
+    pLive.querySelectorAll('div').forEach(function(d) {
+      var t = (d.textContent || '').trim();
+      if (t.indexOf('SALDO RUPIAH') === 0 && d.querySelectorAll('div').length >= 1) {
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !elRp) elRp = c;
+        });
+      }
+      if (t.indexOf('SALDO DOLLAR') === 0 && d.querySelectorAll('div').length >= 1) {
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('$ ') === 0 && !elUsd) elUsd = c;
+        });
+      }
+      if (t.indexOf('KONVERSI') === 0 && d.querySelector('input')) {
+        inpKurs = d.querySelector('input');
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !elKonv) elKonv = c;
+        });
+      }
+      if (t.indexOf('TOTAL SALDO') === 0 && d.querySelectorAll('div').length >= 1) {
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !elTotal) elTotal = c;
+        });
+      }
+    });
+
+    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 15800) : 15800;
+    var nilaiKonv = Math.round(totalMurniUsd * kurs);
+    var grandTotal = totalMurniRp + nilaiKonv;
+
+    if (elRp) elRp.textContent = fmtRp(totalMurniRp);
+    if (elUsd) elUsd.textContent = fmtUsd(totalMurniUsd);
+    if (elKonv) elKonv.textContent = fmtIdr ? fmtIdr(nilaiKonv) : fmtRp(nilaiKonv);
+    if (elTotal) elTotal.textContent = fmtRp(grandTotal);
+  }
+
+  setInterval(perbaikiPerhitunganTabel, 250);
+})();
+</script>
+
 
 </body>
 </html>
