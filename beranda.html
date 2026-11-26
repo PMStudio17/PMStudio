@@ -459,7 +459,7 @@ window.addEventListener('DOMContentLoaded', function() {
     daftarKunci.forEach(function(kunci) {
       var g = grupMap[kunci];
       var adm = parseAngkaID(window.dbAdminLive.admin[kunci] || 0);
-      saldo = Math.round((saldo + g.nominal - adm) * 100) / 100;
+      var saldo = Math.max(0, Math.round((g.nominal - adm) * 100) / 100);
 
       var sudahSelesaiManual = !!(window.dbAdminLive.selesai && window.dbAdminLive.selesai[kunci]);
       var kodeStat = 'AMAN';
@@ -1274,7 +1274,7 @@ window.addEventListener('load', function() {
       var nom = g.totalSub;
 
       if (g.isUsd) {
-        saldoUsd = Math.round((saldoUsd + nom - adm) * 100) / 100;
+        saldoUsd = Math.max(0, Math.round((nom - adm) * 100) / 100);
         var teksNom = nom.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         var teksSaldo = saldoUsd.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -1283,7 +1283,7 @@ window.addEventListener('load', function() {
         if (spanAdm) spanAdm.textContent = '$';
         tds.item(8).innerHTML = '<div style="display:flex; justify-content:space-between; font-weight:bold;"><span>$</span><span>' + teksSaldo + '</span></div>';
       } else {
-        saldoRp = Math.round((saldoRp + nom - adm) * 100) / 100;
+        saldoRp = Math.max(0, Math.round((nom - adm) * 100) / 100);
         tds.item(6).innerHTML = '<div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Rp</span><span>' + nom.toLocaleString('id-ID') + '</span></div>';
         var spanAdmRp = tds.item(7).querySelector('span');
         if (spanAdmRp) spanAdmRp.textContent = 'Rp';
@@ -1303,10 +1303,6 @@ window.addEventListener('load', function() {
   formatMataUangTabelLive();
 });
 </script>
-
-
-
-
 
 <script>
 window.addEventListener('load', function() {
