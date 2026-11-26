@@ -1092,11 +1092,12 @@ var totalRp = sudahPernahCair ? 0 : parseAngka5(st.saldoAwal || 0);
     var pencairanMap = st.pencairanBulan || {};
 
     // Potong Total Saldo pada kotak ke-4 dengan total dana yang sudah dicairkan
-    	if (parseAngka5(pencairanMap['2026-11']) === 250050) {
-      delete pencairanMap['2026-11'];
-      st.pencairanBulan = pencairanMap;
-      localStorage.setItem('pms_admin_live_v1', JSON.stringify(st));
-    }
+    	 if (!localStorage.getItem('pms_wipe_cair_once') && Object.keys(pencairanMap).length > 0) {
+   pencairanMap = {};
+   st.pencairanBulan = {};
+   localStorage.setItem('pms_wipe_cair_once', '1');
+   localStorage.setItem('pms_admin_live_v1', JSON.stringify(st));
+ }
     var totalDicairkan = 0;
     Object.keys(pencairanMap).forEach(function(b) {
       totalDicairkan += parseAngka5(pencairanMap[b]);
