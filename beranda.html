@@ -910,7 +910,7 @@ window.addEventListener('load', function() {
 
   window.ubahKursKotak = function() {
     var el = document.getElementById('kInputKurs');
-    var kurs = parseAngka(el.value) || 15800;
+    var kurs = parseAngka(el.value);
     el.value = kurs.toLocaleString('id-ID');
     var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
     st.kursUsd = kurs;
@@ -922,7 +922,7 @@ window.addEventListener('load', function() {
     pasang4KotakSaldo();
     var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
     var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
-    var kurs = parseAngka(st.kursUsd || 15800);
+    var kurs = parseAngka(st.kursUsd || 0);
     var saldoAwal = parseAngka(st.saldoAwal || 0);
 
     var elKurs = document.getElementById('kInputKurs');
