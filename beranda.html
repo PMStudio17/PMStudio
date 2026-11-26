@@ -61,60 +61,12 @@
     display: none !important;
   }
 
-  /* Sembunyikan indikator status cloud agar tombol Logout tetap rapat di pojok kanan */
-  #badgeSyncCloud { display: none !important; }
-
 </style>
 
 
 	
 </head>
 <body>
-
-	 <!-- === SISTEM LOGIN PUSTAKA MUSIK STUDIO (ATAS BODY UTUH) === -->
-<div id="layarLoginPMS" style="position:fixed; inset:0; background:#0b2545; z-index:999999; display:flex; align-items:center; justify-content:center; padding:14px; font-family:Arial,sans-serif;">
-  <div style="background:#ffffff; width:100%; max-width:520px; border-radius:12px; overflow:hidden; display:flex; flex-wrap:wrap; box-shadow:0 14px 34px rgba(0,0,0,0.4);">
-    
-    <!-- Panel Kiri: Biru + Logo Bulat Presisi -->
-    <div style="flex:1 1 185px; background:#0077c8; color:#ffffff; padding:22px 18px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
-            <div style="width:94px; height:94px; border-radius:50%; background:#dbf0fe; padding:0px; box-sizing:border-box; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; margin-bottom:12px; overflow:hidden;">
-        <img id="imgLogoLoginPMS" src="PMS.png" alt="Logo PM Studio" onerror="(function(img){var ada=document.querySelector('.top img, img[alt*=&quot;PM&quot;], img[src*=&quot;logo&quot;]');if(ada&&ada.src&&ada.src!==img.src){img.src=ada.src;}else{img.style.display='none';img.parentElement.innerHTML='<span style=&quot;font-weight:bold;font-size:20px;color:#0077c8;&quot;>PMS</span>';}})(this)" style="width:100%; height:100%; object-fit:contain; display:block;">
-      </div>
-      <div style="font-size:15px; font-weight:bold; letter-spacing:0.5px; line-height:1.25;">PM STUDIO</div>
-      <div style="font-size:10.5px; color:#e0f2fe; margin-top:5px; line-height:1.35;">Spotify Organic Playlist Curation Services</div>
-    </div>
-
-    <!-- Panel Kanan: Form Input Ramping -->
-    <div style="flex:1.35 1 240px; background:#ffffff; padding:22px 22px; display:flex; flex-direction:column; justify-content:center;">
-      
-      <div style="margin-bottom:10px;">
-        <label style="display:block; font-size:11px; font-weight:bold; color:#475569; margin-bottom:4px;">Username</label>
-        <input id="pmsUserLogin" type="text" placeholder="Masukkan username..." autocomplete="username" style="width:100%; padding:8px 10px; border:none; border-bottom:1.5px solid #cbd5e1; background:#eff6ff; border-radius:4px 4px 0 0; font-size:12.5px; color:#0f172a; box-sizing:border-box; outline:none;">
-      </div>
-
-      <div style="margin-bottom:11px;">
-        <label style="display:block; font-size:11px; font-weight:bold; color:#475569; margin-bottom:4px;">Password</label>
-        <div style="position:relative; width:100%;">
-          <input id="pmsPassLogin" type="password" placeholder="Masukkan password..." autocomplete="current-password" style="width:100%; padding:8px 34px 8px 10px; border:none; border-bottom:1.5px solid #cbd5e1; background:#eff6ff; border-radius:4px 4px 0 0; font-size:12.5px; color:#0f172a; box-sizing:border-box; outline:none;">
-          <button type="button" id="btnTogglePwPMS" title="Lihat / Sembunyikan Password" onclick="(function(btn){var i=document.getElementById('pmsPassLogin');if(!i)return;var tampil=i.type==='password';i.type=tampil?'text':'password';btn.style.color=tampil?'#0077c8':'#64748b';i.focus();})(this)" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; padding:3px; cursor:pointer; color:#64748b; display:flex; align-items:center; justify-content:center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-          </button>
-        </div>
-      </div>
-
-      <div id="pmsErrLogin" style="display:none; background:#fee2e2; color:#b91c1c; font-size:11.5px; padding:6px 8px; border-radius:5px; margin-bottom:10px; text-align:center; font-weight:bold;">
-        Username atau Password salah!
-      </div>
-
-      <button id="btnMasukPMS" type="button" style="width:100%; padding:9px; background:#0077c8; color:#ffffff; border:none; border-radius:999px; font-size:13px; font-weight:bold; cursor:pointer; box-shadow:0 3px 10px rgba(0,119,200,0.28);">
-        Submit
-      </button>
-
-    </div>
-  </div>
-</div>
-
-	
 <div class="wrap">
   <div class="top">
     <div><strong>PUSTAKA MUSIK STUDIO</strong> &mdash; Spotify Organic Playlist Curation Services</div>
@@ -1873,7 +1825,559 @@ window.addEventListener('load', function() {
 })();
 </script>
 
-	
+<!-- === SISTEM LOGIN PUSTAKA MUSIK STUDIO (LENGKAP TANPA LINGKARAN LOGO) === -->
+<div id="layarLoginPMS" style="position:fixed; inset:0; background:#0b2545; z-index:999999; display:flex; align-items:center; justify-content:center; padding:14px; font-family:Arial,sans-serif;">
+  <div style="background:#ffffff; width:100%; max-width:520px; border-radius:12px; overflow:hidden; display:flex; flex-wrap:wrap; box-shadow:0 14px 34px rgba(0,0,0,0.4);">
+    
+        <!-- === SISTEM LOGIN PUSTAKA MUSIK STUDIO (LENGKAP FINAL) === -->
+<div id="layarLoginPMS" style="position:fixed; inset:0; background:#0b2545; z-index:999999; display:flex; align-items:center; justify-content:center; padding:14px; font-family:Arial,sans-serif;">
+  <div style="background:#ffffff; width:100%; max-width:520px; border-radius:12px; overflow:hidden; display:flex; flex-wrap:wrap; box-shadow:0 14px 34px rgba(0,0,0,0.4);">
+    
+    <!-- Panel Kiri: Biru + Logo Bulat Menyatu Tanpa Sisa Putih -->
+    <div style="flex:1 1 185px; background:#0077c8; color:#ffffff; padding:22px 18px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+      <div style="width:92px; height:92px; border-radius:70%; background:#dbf0fe; padding:0; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; margin-bottom:12px; overflow:hidden;">
+        <img id="imgLogoLoginPMS" src="PMS.png" alt="Logo PM Studio" onerror="(function(img){var ada=document.querySelector('.top img, img[alt*=&quot;PM&quot;], img[src*=&quot;logo&quot;]');if(ada&&ada.src&&ada.src!==img.src){img.src=ada.src;}else{img.style.display='none';img.parentElement.innerHTML='<span style=&quot;font-weight:bold;font-size:20px;color:#0077c8;&quot;>PMS</span>';}})(this)" style="width:100%; height:100%; object-fit:cover; display:block;">
+      </div>
+      <div style="font-size:15px; font-weight:bold; letter-spacing:0.5px; line-height:1.25;">PM STUDIO</div>
+      <div style="font-size:10.5px; color:#e0f2fe; margin-top:5px; line-height:1.35;">Spotify Organic Playlist Curation Services</div>
+    </div>
+
+
+    <!-- Panel Kanan: Form Input Ramping -->
+    <div style="flex:1.35 1 240px; background:#ffffff; padding:22px 22px; display:flex; flex-direction:column; justify-content:center;">
+      
+      <div style="margin-bottom:10px;">
+        <label style="display:block; font-size:11px; font-weight:bold; color:#475569; margin-bottom:4px;">Username</label>
+        <input id="pmsUserLogin" type="text" placeholder="Masukkan username..." autocomplete="username" style="width:100%; padding:8px 10px; border:none; border-bottom:1.5px solid #cbd5e1; background:#eff6ff; border-radius:4px 4px 0 0; font-size:12.5px; color:#0f172a; box-sizing:border-box; outline:none;">
+      </div>
+
+      <div style="margin-bottom:11px;">
+        <label style="display:block; font-size:11px; font-weight:bold; color:#475569; margin-bottom:4px;">Password</label>
+        <div style="position:relative; width:100%;">
+          <input id="pmsPassLogin" type="password" placeholder="Masukkan password..." autocomplete="current-password" style="width:100%; padding:8px 34px 8px 10px; border:none; border-bottom:1.5px solid #cbd5e1; background:#eff6ff; border-radius:4px 4px 0 0; font-size:12.5px; color:#0f172a; box-sizing:border-box; outline:none;">
+          <button type="button" id="btnTogglePwPMS" title="Lihat / Sembunyikan Password" onclick="(function(btn){var i=document.getElementById('pmsPassLogin');if(!i)return;var tampil=i.type==='password';i.type=tampil?'text':'password';btn.style.color=tampil?'#0077c8':'#64748b';i.focus();})(this)" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; padding:3px; cursor:pointer; color:#64748b; display:flex; align-items:center; justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+      </div>
+
+      <label style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:bold; color:#1e293b; margin-bottom:1
+
+2px; cursor:pointer;">
+        <input id="pmsRememberLogin" type="checkbox" checked style="accent-color:#0077c8; width:14px; height:14px; cursor:pointer;">
+        <span>Remember Me!</span>
+      </label>
+
+      <div id="pmsErrLogin" style="display:none; background:#fee2e2; color:#b91c1c; font-size:11.5px; padding:6px 8px; border-radius:5px; margin-bottom:10px; text-align:center; font-weight:bold;">
+        Username atau Password salah!
+      </div>
+
+      <button id="btnMasukPMS" type="button" style="width:100%; padding:9px; background:#0077c8; color:#ffffff; border:none; border-radius:999px; font-size:13px; font-weight:bold; cursor:pointer; box-shadow:0 3px 10px rgba(0,119,200,0.28);">
+        Submit
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var AKUN_IZIN = {
+    'alya': 'alyayura96',
+    'master': '17112026'
+  };
+  var KUNCI_SESI = 'pms_auth_logged_in_v1';
+
+  var layar = document.getElementById('layarLoginPMS');
+  var inpUser = document.getElementById('pmsUserLogin');
+  var inpPass = document.getElementById('pmsPassLogin');
+  var boxErr = document.getElementById('pmsErrLogin');
+  var btnMasuk = document.getElementById('btnMasukPMS');
+  var chkRemember = document.getElementById('pmsRememberLogin');
+
+  function sudahLogin() {
+    return sessionStorage.getItem(KUNCI_SESI) === 'OK' || localStorage.getItem(KUNCI_SESI) === 'OK';
+  }
+
+  function cekStatusLogin() {
+    if (sudahLogin()) {
+      if (layar) layar.style.display = 'none';
+    } else {
+      if (layar) layar.style.display = 'flex';
+      if (inpUser) setTimeout(function() { inpUser.focus(); }, 100);
+    }
+  }
+
+  function prosesLogin() {
+    var u = (inpUser.value || '').trim().toLowerCase();
+    var p = (inpPass.value || '').trim();
+    if (AKUN_IZIN[u] && AKUN_IZIN[u] === p) {
+      sessionStorage.setItem(KUNCI_SESI, 'OK');
+      if (chkRemember && chkRemember.checked) {
+        localStorage.setItem(KUNCI_SESI, 'OK');
+      } else {
+        localStorage.removeItem(KUNCI_SESI);
+      }
+      boxErr.style.display = 'none';
+      inpPass.value = '';
+      layar.style.display = 'none';
+    } else {
+      boxErr.style.display = 'block';
+      inpPass.value = '';
+      inpPass.focus();
+    }
+  }
+
+  if (btnMasuk) btnMasuk.addEventListener('click', prosesLogin);
+  if (inpUser) inpUser.addEventListener('keydown', function(e) { if (e.key === 'Enter') inpPass.focus(); });
+  if (inpPass) inpPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') prosesLogin(); });
+
+  document.addEventListener('click', function(e) {
+    var btn = e.target && e.target.closest('button');
+    if (btn && (btn.textContent || '').trim().toLowerCase() === 'logout') {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      sessionStorage.removeItem(KUNCI_SESI);
+      localStorage.removeItem(KUNCI_SESI);
+      cekStatusLogin();
+    }
+  }, true);
+
+  cekStatusLogin();
+})();
+</script>
+<!-- === SALDO AWAL RP & $ RATA KANAN PRESISI === -->
+<script>
+(function() {
+  if (!localStorage.getItem('pms_bersih_cair_sekali_v2')) {
+    Object.keys(localStorage).forEach(function(k) {
+      if (k.indexOf('cair') !== -1 || k.indexOf('pencairan') !== -1) {
+        localStorage.removeItem(k);
+      }
+    });
+    localStorage.setItem('pms_bersih_cair_sekali_v2', 'OK');
+  }
+
+  var KUNCI_RP = 'pms_saldo_awal_rp_v1';
+  var KUNCI_USD = 'pms_saldo_awal_usd_v1';
+
+  function fmtIdr(n) {
+    return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
+  }
+
+  function fmtUsd(n) {
+    return '$ ' + (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function parseRupiah(val) {
+    var s = String(val || '').replace(/[^0-9-]/g, '');
+    return parseFloat(s) || 0;
+  }
+
+  function parseDollar(val) {
+    var s = String(val || '').trim().replace(/[^0-9.,-]/g, '');
+    if (s.indexOf(',') !== -1 && s.indexOf('.') === -1) {
+      s = s.replace(',', '.');
+    } else {
+      s = s.replace(/,/g, '');
+    }
+    return parseFloat(s) || 0;
+  }
+
+  function ambilAngkaKartu(str) {
+    var s = String(str || '').trim();
+    if (s.indexOf('$') !== -1) {
+      var u = s.replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.');
+      return parseFloat(u) || 0;
+    }
+    return parseFloat(s.replace(/[^0-9-]/g, '')) || 0;
+  }
+
+  function pasangKotakDollarDiSampingRp() {
+    if (document.getElementById('grupSaldoAwalKananPMS')) return;
+
+    var boxRp = null;
+    document.querySelectorAll('div, span').forEach(function(el) {
+      if (!boxRp && el.children.length <= 2) {
+        var txt = (el.textContent || '').trim();
+        if (txt.indexOf('Saldo Awal:') === 0 && el.querySelector('input')) {
+          boxRp = el;
+        }
+      }
+    });
+
+    if (!boxRp) return;
+
+    var inpRp = boxRp.querySelector('input');
+    inpRp.id = 'inpSaldoAwalRpPMS';
+    inpRp.style.width = '88px';
+
+    // Buat grup pembungkus khusus di ujung kanan agar kedua kotak sejajar dan tidak keluar layar
+    var grupKanan = document.createElement('div');
+    grupKanan.id = 'grupSaldoAwalKananPMS';
+    grupKanan.style.cssText = 'display:inline-flex; align-items:center; gap:8px; margin-left:auto; flex-wrap:wrap; max-width:100%; box-sizing:border-box;';
+
+    var baris = boxRp.parentNode;
+    baris.style.boxSizing = 'border-box';
+    baris.style.maxWidth = '100%';
+    baris.insertBefore(grupKanan, boxRp);
+
+    // Pindahkan boxRp masuk ke dalam grupKanan dan netralkan margin bawaannya
+    boxRp.style.margin = '0';
+    grupKanan.appendChild(boxRp);
+
+    // Buat boxUsd di sebelah kanan boxRp di dalam grupKanan
+    var boxUsd = boxRp.cloneNode(true);
+    boxUsd.id = 'boxSaldoAwalUsdPMS';
+    boxUsd.style.margin = '0';
+    boxUsd.style.background = '#fef9c3';
+    boxUsd.style.borderColor = '#fde047';
+
+    boxUsd.querySelectorAll('*').forEach(function(child) {
+      if (child.children.length === 0 && (child.textContent || '').indexOf('Saldo Awal:') !== -1) {
+        child.textContent = 'Saldo Awal: $';
+        child.style.color = '#854d0e';
+      }
+    });
+    boxUsd.childNodes.forEach(function(node) {
+      if (node.nodeType === 3 && node.nodeValue.indexOf('Saldo Awal:') !== -1) {
+        node.nodeValue = 'Saldo Awal: $ ';
+      }
+    });
+
+    var inpUsd = boxUsd.querySelector('input');
+    inpUsd.id = 'inpSaldoAwalUsdPMS';
+    inpUsd.type = 'text';
+    inpUsd.placeholder = '0';
+    inpUsd.style.width = '78px';
+    inpUsd.value = localStorage.getItem(KUNCI_USD) || '0';
+
+    grupKanan.appendChild(boxUsd);
+
+    if (localStorage.getItem(KUNCI_RP) !== null) {
+      inpRp.value = localStorage.getItem(KUNCI_RP);
+    }
+
+    inpRp.addEventListener('input', function() {
+      localStorage.setItem(KUNCI_RP, inpRp.value);
+      hitungUlangKartuSaldo();
+    });
+
+    inpUsd.addEventListener('input', function() {
+      localStorage.setItem(KUNCI_USD, inpUsd.value);
+      hitungUlangKartuSaldo();
+    });
+
+    inpUsd.addEventListener('blur', function() {
+      var v = parseDollar(inpUsd.value);
+      inpUsd.value = v === 0 ? '0' : String(v);
+      localStorage.setItem(KUNCI_USD, inpUsd.value);
+      hitungUlangKartuSaldo();
+    });
+  }
+
+  function hitungUlangKartuSaldo() {
+    var inpRp = document.getElementById('inpSaldoAwalRpPMS');
+    var inpUsd = document.getElementById('inpSaldoAwalUsdPMS');
+    if (!inpRp || !inpUsd) return;
+
+    var savedRp = localStorage.getItem(KUNCI_RP);
+    var savedUsd = localStorage.getItem(KUNCI_USD);
+    if (savedRp !== null && document.activeElement !== inpRp && inpRp.value !== savedRp) {
+      inpRp.value = savedRp;
+    }
+    if (savedUsd !== null && document.activeElement !== inpUsd && inpUsd.value !== savedUsd) {
+      inpUsd.value = savedUsd;
+    }
+
+    var awalRp = parseRupiah(inpRp.value);
+    var awalUsd = parseDollar(inpUsd.value);
+
+    var elRp = null, elUsd = null, elKonv = null, elTotal = null, inpKurs = null;
+    document.querySelectorAll('div').forEach(function(d) {
+      var t = (d.textContent || '').trim();
+      if (t.indexOf('SALDO RUPIAH') === 0 && d.querySelectorAll('div').length >= 1) {
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !elRp) elRp = c;
+        });
+      }
+      if (t.indexOf('SALDO DOLLAR') === 0 && d.querySelectorAll('div').length >= 1) {
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('$ ') === 0 && !elUsd) elUsd = c;
+        });
+      }
+      if (t.indexOf('KONVERSI') === 0 && d.querySelector('input')) {
+        inpKurs = d.querySelector('input');
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !elKonv) elKonv = c;
+        });
+      }
+      if (t.indexOf('TOTAL SALDO') === 0 && d.querySelectorAll('div').length >= 1) {
+        d.querySelectorAll('div').forEach(function(c) {
+          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !elTotal) elTotal = c;
+        });
+      }
+    });
+
+    if (!elRp || !elUsd || !elTotal) return;
+
+    if (!elRp.dataset.baseRp || elRp.dataset.lastApplied !== elRp.textContent) {
+      elRp.dataset.baseRp = ambilAngkaKartu(elRp.textContent);
+    }
+    if (!elUsd.dataset.baseUsd || elUsd.dataset.lastApplied !== elUsd.textContent) {
+      elUsd.dataset.baseUsd = ambilAngkaKartu(elUsd.textContent);
+    }
+
+    var baseRp = parseFloat(elRp.dataset.baseRp) || 0;
+    var baseUsd = parseFloat(elUsd.dataset.baseUsd) || 0;
+    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 15800) : 15800;
+
+    var finalRp = baseRp + awalRp;
+    var finalUsd = baseUsd + awalUsd;
+    var finalKonv = Math.round(finalUsd * kurs);
+    var finalTotal = finalRp + finalKonv;
+
+    elRp.textContent = fmtIdr(finalRp);
+    elRp.dataset.lastApplied = elRp.textContent;
+
+    elUsd.textContent = fmtUsd(finalUsd);
+    elUsd.dataset.lastApplied = elUsd.textContent;
+
+    if (elKonv) {
+      elKonv.textContent = fmtIdr(finalKonv);
+    }
+    elTotal.textContent = fmtIdr(finalTotal);
+  }
+
+  setInterval(function() {
+    pasangKotakDollarDiSampingRp();
+    hitungUlangKartuSaldo();
+  }, 250);
+})();
+</script>
+
+<!-- === SALDO AWAL RP & $ MASUK KE SALDO BULAN BERJALAN === -->
+<script>
+(function() {
+  if (!localStorage.getItem('pms_bersih_cair_sekali_v2')) {
+    Object.keys(localStorage).forEach(function(k) {
+      if (k.indexOf('cair') !== -1 || k.indexOf('pencairan') !== -1) {
+        localStorage.removeItem(k);
+      }
+    });
+    localStorage.setItem('pms_bersih_cair_sekali_v2', 'OK');
+  }
+
+  var KUNCI_RP = 'pms_saldo_awal_rp_v1';
+  var KUNCI_USD = 'pms_saldo_awal_usd_v1';
+
+  function fmtIdr(n) {
+    return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
+  }
+
+  function fmtUsd(n) {
+    return '$ ' + (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function parseRupiah(val) {
+    var s = String(val || '').replace(/[^0-9-]/g, '');
+    return parseFloat(s) || 0;
+  }
+
+  function parseDollar(val) {
+    var s = String(val || '').trim().replace(/[^0-9.,-]/g, '');
+    if (s.indexOf(',') !== -1 && s.indexOf('.') === -1) {
+      s = s.replace(',', '.');
+    } else {
+      s = s.replace(/,/g, '');
+    }
+    return parseFloat(s) || 0;
+  }
+
+  function ambilAngkaDariTeks(str) {
+    var s = String(str || '').trim();
+    if (s.indexOf('$') !== -1) {
+      var u = s.replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.');
+      return parseFloat(u) || 0;
+    }
+    return parseFloat(s.replace(/[^0-9-]/g, '')) || 0;
+  }
+
+  function pasangKotakDollarDiSampingRp() {
+    if (document.getElementById('grupSaldoAwalKananPMS')) return;
+
+    var boxRp = null;
+    document.querySelectorAll('div, span').forEach(function(el) {
+      if (!boxRp && el.children.length <= 2) {
+        var txt = (el.textContent || '').trim();
+        if (txt.indexOf('Saldo Awal:') === 0 && el.querySelector('input')) {
+          boxRp = el;
+        }
+      }
+    });
+
+    if (!boxRp) return;
+
+    var inpRp = boxRp.querySelector('input');
+    inpRp.id = 'inpSaldoAwalRpPMS';
+    inpRp.type = 'text';
+    inpRp.style.width = '88px';
+
+    var grupKanan = document.createElement('div');
+    grupKanan.id = 'grupSaldoAwalKananPMS';
+    grupKanan.style.cssText = 'display:inline-flex; align-items:center; gap:8px; margin-left:auto; flex-wrap:wrap; max-width:100%; box-sizing:border-box;';
+
+    var baris = boxRp.parentNode;
+    baris.style.boxSizing = 'border-box';
+    baris.style.maxWidth = '100%';
+    baris.insertBefore(grupKanan, boxRp);
+
+    boxRp.style.margin = '0';
+    grupKanan.appendChild(boxRp);
+
+    var boxUsd = boxRp.cloneNode(true);
+    boxUsd.id = 'boxSaldoAwalUsdPMS';
+    boxUsd.style.margin = '0';
+    boxUsd.style.background = '#fef9c3';
+    boxUsd.style.borderColor = '#fde047';
+
+    boxUsd.querySelectorAll('*').forEach(function(child) {
+      if (child.children.length === 0 && (child.textContent || '').indexOf('Saldo Awal:') !== -1) {
+        child.textContent = 'Saldo Awal: $';
+        child.style.color = '#854d0e';
+      }
+    });
+    boxUsd.childNodes.forEach(function(node) {
+      if (node.nodeType === 3 && node.nodeValue.indexOf('Saldo Awal:') !== -1) {
+        node.nodeValue = 'Saldo Awal: $ ';
+      }
+    });
+
+    var inpUsd = boxUsd.querySelector('input');
+    inpUsd.id = 'inpSaldoAwalUsdPMS';
+    inpUsd.type = 'text';
+    inpUsd.placeholder = '0';
+    inpUsd.style.width = '78px';
+    inpUsd.value = localStorage.getItem(KUNCI_USD) || '0';
+
+    grupKanan.appendChild(boxUsd);
+
+    if (localStorage.getItem(KUNCI_RP) !== null) {
+      var valAwalRp = parseRupiah(localStorage.getItem(KUNCI_RP));
+      inpRp.value = valAwalRp === 0 ? '0' : valAwalRp.toLocaleString('id-ID');
+    }
+
+    inpRp.addEventListener('input', function() {
+      var v = parseRupiah(inpRp.value);
+      localStorage.setItem(KUNCI_RP, String(v));
+      hitungUlangSaldoBerjalan();
+    });
+
+    inpRp.addEventListener('blur', function() {
+      var v = parseRupiah(inpRp.value);
+      inpRp.value = v === 0 ? '0' : v.toLocaleString('id-ID');
+      localStorage.setItem(KUNCI_RP, String(v));
+      hitungUlangSaldoBerjalan();
+    });
+
+    inpUsd.addEventListener('input', function() {
+      localStorage.setItem(KUNCI_USD, inpUsd.value);
+      hitungUlangSaldoBerjalan();
+    });
+
+    inpUsd.addEventListener('blur', function() {
+      var v = parseDollar(inpUsd.value);
+      inpUsd.value = v === 0 ? '0' : String(v);
+      localStorage.setItem(KUNCI_USD, inpUsd.value);
+      hitungUlangSaldoBerjalan();
+    });
+  }
+
+  function hitungUlangSaldoBerjalan() {
+    var inpRp = document.getElementById('inpSaldoAwalRpPMS');
+    var inpUsd = document.getElementById('inpSaldoAwalUsdPMS');
+    if (!inpRp || !inpUsd) return;
+
+    var savedRp = localStorage.getItem(KUNCI_RP);
+    var savedUsd = localStorage.getItem(KUNCI_USD);
+    if (savedRp !== null && document.activeElement !== inpRp) {
+      var fmtR = parseRupiah(savedRp) === 0 ? '0' : parseRupiah(savedRp).toLocaleString('id-ID');
+      if (inpRp.value !== fmtR) inpRp.value = fmtR;
+    }
+    if (savedUsd !== null && document.activeElement !== inpUsd && inpUsd.value !== savedUsd) {
+      inpUsd.value = savedUsd;
+    }
+
+    var awalRp = parseRupiah(inpRp.value);
+    var awalUsd = parseDollar(inpUsd.value);
+
+    // Cari target elemen "Bulan Berjalan: Rp ...", "Bulan Berjalan: $ ...", dan "Total Saldo Bulan Berjalan: Rp ..."
+    var elBerjalanRp = null, elBerjalanUsd = null, elTotalBerjalan = null, inpKurs = null;
+
+    document.querySelectorAll('div, span').forEach(function(el) {
+      var t = (el.textContent || '').trim();
+      if (t.indexOf('KONVERSI') === 0 && el.querySelector('input')) {
+        inpKurs = el.querySelector('input');
+      }
+      if (el.children.length <= 1) {
+        if (t.indexOf('Bulan Berjalan: Rp') === 0 && !elBerjalanRp) {
+          elBerjalanRp = el;
+        } else if (t.indexOf('Bulan Berjalan: $') === 0 && !elBerjalanUsd) {
+          elBerjalanUsd = el;
+        } else if (t.indexOf('Total Saldo Bulan Berjalan:') === 0 && !elTotalBerjalan) {
+          // Cari elemen angka Rp di dalam atau tepat di bawah "Total Saldo Bulan Berjalan:"
+          var sub = el.querySelector('div, span');
+          if (sub && (sub.textContent || '').trim().indexOf('Rp ') === 0) {
+            elTotalBerjalan = sub;
+          } else if (el.nextElementSibling && (el.nextElementSibling.textContent || '').trim().indexOf('Rp ') === 0) {
+            elTotalBerjalan = el.nextElementSibling;
+          } else {
+            elTotalBerjalan = el;
+          }
+        }
+      }
+    });
+
+    if (!elBerjalanRp || !elBerjalanUsd) return;
+
+    // Simpan nilai murni Bulan Berjalan dari tabel lagu sebelum ditambah Saldo Awal
+    if (!elBerjalanRp.dataset.baseRp || elBerjalanRp.dataset.lastApplied !== elBerjalanRp.textContent) {
+      elBerjalanRp.dataset.baseRp = ambilAngkaDariTeks(elBerjalanRp.textContent);
+    }
+    if (!elBerjalanUsd.dataset.baseUsd || elBerjalanUsd.dataset.lastApplied !== elBerjalanUsd.textContent) {
+      elBerjalanUsd.dataset.baseUsd = ambilAngkaDariTeks(elBerjalanUsd.textContent);
+    }
+
+    var baseBerjalanRp = parseFloat(elBerjalanRp.dataset.baseRp) || 0;
+    var baseBerjalanUsd = parseFloat(elBerjalanUsd.dataset.baseUsd) || 0;
+    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 15800) : 15800;
+
+    var finalBerjalanRp = baseBerjalanRp + awalRp;
+    var finalBerjalanUsd = baseBerjalanUsd + awalUsd;
+    var finalTotalBerjalan = finalBerjalanRp + Math.round(finalBerjalanUsd * kurs);
+
+    elBerjalanRp.textContent = 'Bulan Berjalan: ' + fmtIdr(finalBerjalanRp);
+    elBerjalanRp.dataset.lastApplied = elBerjalanRp.textContent;
+
+    elBerjalanUsd.textContent = 'Bulan Berjalan: ' + fmtUsd(finalBerjalanUsd);
+    elBerjalanUsd.dataset.lastApplied = elBerjalanUsd.textContent;
+
+    if (elTotalBerjalan) {
+      if ((elTotalBerjalan.textContent || '').indexOf('Total Saldo Bulan Berjalan:') === 0) {
+        elTotalBerjalan.innerHTML = 'Total Saldo Bulan Berjalan:<br><b>' + fmtIdr(finalTotalBerjalan) + '</b>';
+      } else {
+        elTotalBerjalan.textContent = fmtIdr(finalTotalBerjalan);
+      }
+    }
+  }
+
+  setInterval(function() {
+    pasangKotakDollarDiSampingRp();
+    hitungUlangSaldoBerjalan();
+  }, 250);
+})();
+</script>
+
 <script>
 (function() {
   var sedangTarik = false;
@@ -1999,161 +2503,6 @@ window.addEventListener('load', function() {
   });
 })();
 </script>
-	
-<script>
-(function() {
-  var AKUN_IZIN = {
-    'alya': 'alyayura96',
-    'master': '17112026'
-  };
-  var KUNCI_SESI = 'pms_auth_logged_in_v1';
-
-  var layar = document.getElementById('layarLoginPMS');
-  var inpUser = document.getElementById('pmsUserLogin');
-  var inpPass = document.getElementById('pmsPassLogin');
-  var boxErr = document.getElementById('pmsErrLogin');
-  var btnMasuk = document.getElementById('btnMasukPMS');
- 
-
-  function sudahLogin() {
-        return sessionStorage.getItem(KUNCI_SESI) === 'OK';
-  }
-
-  function cekStatusLogin() {
-    if (sudahLogin()) {
-      if (layar) layar.style.display = 'none';
-    } else {
-      if (layar) layar.style.display = 'flex';
-      if (inpUser) setTimeout(function() { inpUser.focus(); }, 100);
-    }
-  }
-
-  function prosesLogin() {
-    var u = (inpUser.value || '').trim().toLowerCase();
-    var p = (inpPass.value || '').trim();
-    if (AKUN_IZIN[u] && AKUN_IZIN[u] === p) {
-      sessionStorage.setItem(KUNCI_SESI, 'OK');
-      boxErr.style.display = 'none';
-      inpPass.value = '';
-      layar.style.display = 'none';
-    } else {
-      boxErr.style.display = 'block';
-      inpPass.value = '';
-      inpPass.focus();
-    }
-  }
-
-  if (btnMasuk) btnMasuk.addEventListener('click', prosesLogin);
-  if (inpUser) inpUser.addEventListener('keydown', function(e) { if (e.key === 'Enter') inpPass.focus(); });
-  if (inpPass) inpPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') prosesLogin(); });
-
-  document.addEventListener('click', function(e) {
-    var btn = e.target && e.target.closest('button');
-    if (btn && (btn.textContent || '').trim().toLowerCase() === 'logout') {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      sessionStorage.removeItem(KUNCI_SESI);
-      localStorage.removeItem(KUNCI_SESI);
-      cekStatusLogin();
-    }
-  }, true);
-
-  cekStatusLogin();
-})();
-</script>
-
-<!-- === PERBAIKAN AKURAT NET INCOME & TOTAL SALDO (100% BEKERJA) === -->
-<script>
-(function() {
-  function angkaIdr(s) {
-    return parseFloat(String(s || '').replace(/[^0-9-]/g, '')) || 0;
-  }
-  function angkaUsd(s) {
-    var c = String(s || '').replace(/[^0-9.,-]/g, '');
-    if (c.indexOf(',') !== -1 && c.indexOf('.') !== -1) c = c.replace(/\./g, '').replace(',', '.');
-    else if (c.indexOf(',') !== -1) c = c.replace(',', '.');
-    return parseFloat(c) || 0;
-  }
-  function fmtIdr(n) {
-    return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
-  }
-
-  function rapikanDanHitung() {
-    var totRp = 0, totUsd = 0;
-
-    document.querySelectorAll('table tbody tr').forEach(function(tr) {
-      var sel = tr.querySelectorAll('td');
-      if (sel.length < 9) return;
-
-      var tdNom = sel.item(6);
-      var tdAdm = sel.item(7);
-      var tdNet = sel.item(8);
-
-      var teksNom = (tdNom.textContent || '').trim();
-      var isUsd = teksNom.indexOf('$') !== -1;
-      var nom = isUsd ? angkaUsd(teksNom) : angkaIdr(teksNom);
-
-      var inpAdm = tdAdm.querySelector('input');
-      var adm = inpAdm
-        ? (isUsd ? angkaUsd(inpAdm.value) : angkaIdr(inpAdm.value))
-        : (isUsd ? angkaUsd(tdAdm.textContent) : angkaIdr(tdAdm.textContent));
-
-      var net = Math.max(0, nom - adm);
-      var teksAngka = isUsd
-        ? net.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-        : Math.round(net).toLocaleString('id-ID');
-
-      var rapiHtml = '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;"><span>' + (isUsd ? '$' : 'Rp') + '</span><span>' + teksAngka + '</span></div>';
-      if (tdNet.innerHTML !== rapiHtml) {
-        tdNet.innerHTML = rapiHtml;
-      }
-
-      if (isUsd) totUsd += net;
-      else totRp += net;
-    });
-
-    var boxRp = null, boxUsd = null, boxKonv = null, boxTotal = null, inpKurs = null;
-    document.querySelectorAll('div').forEach(function(d) {
-      var t = (d.textContent || '').trim();
-      if (t.indexOf('SALDO RUPIAH') === 0) {
-        d.querySelectorAll('div').forEach(function(c) {
-          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !boxRp) boxRp = c;
-        });
-      } else if (t.indexOf('SALDO DOLLAR') === 0) {
-        d.querySelectorAll('div').forEach(function(c) {
-          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('$ ') === 0 && !boxUsd) boxUsd = c;
-        });
-      } else if (t.indexOf('KONVERSI') === 0 && d.querySelector('input')) {
-        inpKurs = d.querySelector('input');
-        d.querySelectorAll('div').forEach(function(c) {
-          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !boxKonv) boxKonv = c;
-        });
-      } else if (t.indexOf('TOTAL SALDO') === 0) {
-        d.querySelectorAll('div').forEach(function(c) {
-          if (c.children.length === 0 && (c.textContent || '').trim().indexOf('Rp ') === 0 && !boxTotal) boxTotal = c;
-        });
-      }
-    });
-
-    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 15800) : 15800;
-    var nilaiKonv = Math.round(totUsd * kurs);
-    var grandTotal = totRp + nilaiKonv;
-
-    if (boxRp && boxRp.textContent.trim() !== fmtIdr(totRp)) boxRp.textContent = fmtIdr(totRp);
-    if (boxUsd) {
-      var strUsd = '$ ' + totUsd.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      if (boxUsd.textContent.trim() !== strUsd) boxUsd.textContent = strUsd;
-    }
-    if (boxKonv && boxKonv.textContent.trim() !== fmtIdr(nilaiKonv)) boxKonv.textContent = fmtIdr(nilaiKonv);
-    if (boxTotal && boxTotal.textContent.trim() !== fmtIdr(grandTotal)) boxTotal.textContent = fmtIdr(grandTotal);
-  }
-
-  setInterval(rapikanDanHitung, 200);
-})();
-</script>
-
-
-
 
 </body>
 </html>
