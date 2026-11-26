@@ -1109,12 +1109,12 @@ var totalRp = sudahPernahCair ? 0 : parseAngka5(st.saldoAwal || 0);
     Object.keys(pencairanMap).forEach(function(b) {
       totalDicairkan += parseAngka5(pencairanMap[b]);
     });
-    var elTotal = document.getElementById('kBoxTotal');
-    if (elTotal && totalDicairkan > 0) {
-      var totalKotor = parseAngka5((elTotal.textContent || '').replace('Rp', '').trim());
-      var totalNet = Math.max(0, Math.round((totalKotor - totalDicairkan) * 100) / 100);
-      var opts = (totalNet % 1 !== 0) ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : {};
-      elTotal.textContent = 'Rp ' + totalNet.toLocaleString('id-ID', opts);
+        var elTotal = document.getElementById('kBoxTotal');
+    if (elTotal) {
+      var rpAsli = parseAngka5((document.getElementById('kBoxRp') && document.getElementById('kBoxRp').textContent || '').replace('Rp', '').trim());
+      var konvAsli = parseAngka5((document.getElementById('kBoxKonv') && document.getElementById('kBoxKonv').textContent || '').replace('Rp', '').trim());
+      var totalNet = Math.max(0, Math.round((rpAsli + konvAsli - totalDicairkan) * 100) / 100);
+      elTotal.textContent = 'Rp ' + totalNet.toLocaleString('id-ID');
     }
 
     var blnPilih = elBulan.value || bulanBerjalan;
