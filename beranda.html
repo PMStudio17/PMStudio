@@ -894,7 +894,7 @@ window.addEventListener('load', function() {
         '<div id="kBoxKonv" style="font-size:15px; font-weight:bold; color:#1e3a8a; margin-top:3px;">Rp 0</div>' +
       '</div>' +
       '<div style="background:#0b2545; border:1px solid #0b2545; border-radius:6px; padding:8px 14px; min-width:185px; color:#fff;">' +
-        '<div style="font-size:10.5px; font-weight:bold; color:#93c5fd;">TOTAL SALDO</div>' +
+        '<div style="font-size:10.5px; font-weight:bold; color:#93c5fd;">TOTAL PENDAPATAN</div>' +
         '<div id="kBoxTotal" style="font-size:16px; font-weight:bold; color:#fff; margin-top:3px;">Rp 0</div>' +
       '</div>';
 
@@ -2671,5 +2671,61 @@ window.addEventListener('load', function() {
 })();
 </script>
 
+<!-- === INFO KECIL TOTAL ADMIN RP & $ DI KOTAK TOTAL SALDO === -->
+<script>
+(function() {
+  function hitungDanTampilTotalAdmin() {
+    var boxSub = document.getElementById('kSubTotalBln');
+    if (!boxSub || !boxSub.parentElement) return;
+
+    var infoEl = document.getElementById('kInfoTotalAdminDual');
+    if (!infoEl) {
+      infoEl = document.createElement('div');
+      infoEl.id = 'kInfoTotalAdminDual';
+      infoEl.style.cssText = 'margin-top:6px; padding-top:4px; border-top:1px dashed #1e3a8a; font-size:9.5px; color:#93c5fd; white-space:nowrap;';
+      boxSub.parentElement.appendChild(infoEl);
+    }
+
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    var admMap = st.admin || {};
+
+    var totAdmRp = 0, totAdmUsd = 0, cek = {};
+    dbList.forEach(function(x) {
+      var k = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+      if (cek[k]) return;
+      cek[k] = true;
+
+      var raw = admMap[k] || 0;
+      var pot = (typeof raw === 'number')
+        ? raw
+        : (parseFloat(String(raw).trim().replace(/\./g, '').replace(',', '.')) || 0);
+
+      if (String(x.noInv || '').toUpperCase().indexOf('INT') !== -1) totAdmUsd += pot;
+      else totAdmRp += pot;
+    });
+
+    var fmtRp = 'Rp ' + Math.round(totAdmRp).toLocaleString('id-ID');
+    var fmtUsd = '$ ' + totAdmUsd.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    infoEl.innerHTML =
+      'Total Admin: <strong style="color:#fff;">' + fmtRp + '</strong> <span style="color:#475569;">|</span> <strong style="color:#fde047;">' + fmtUsd + '</strong>';
+  }
+
+  if (typeof window.renderLive === 'function') {
+    var rAsli = window.renderLive;
+    window.renderLive = function() {
+      rAsli();
+      hitungDanTampilTotalAdmin();
+    };
+  }
+
+  window.addEventListener('load', function() {
+    hitungDanTampilTotalAdmin();
+    setTimeout(hitungDanTampilTotalAdmin, 300);
+  });
+})();
+</script>
+	  
 </body>
 </html>
