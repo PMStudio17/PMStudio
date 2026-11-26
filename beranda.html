@@ -2499,6 +2499,164 @@ window.addEventListener('load', function() {
   });
 })();
 </script>
+<!-- === FIX FINAL: HAPUS KOTAK SALDO AWAL, BERSIH PENCAIRAN LAMA, & UPDATE SAAT ENTER (0% KEDIP) === -->
+<script>
+(function() {
+  // 1. Matikan seluruh interval lama penyebab kedip
+  var maxId = window.setInterval(function(){}, 99999);
+  for (var i = 1; i <= maxId; i++) window.clearInterval(i);
+
+  function angkaRp(s) { return parseFloat(String(s || '').replace(/[^0-9-]/g, '')) || 0; }
+  function angkaUsd(s) {
+    var c = String(s || '').trim().replace(/[^0-9.,-]/g, '');
+    if (c.indexOf(',') !== -1 && c.indexOf('.') !== -1) c = c.replace(/\./g, '').replace(',', '.');
+    else if (c.indexOf(',') !== -1) c = c.replace(',', '.');
+    return parseFloat(c) || 0;
+  }
+  function fmtIdr(n) { return 'Rp ' + Math.round(Number(n || 0)).toLocaleString('id-ID'); }
+  function fmtUsd(n) { return '$ ' + Number(n || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  // 2. Sembunyikan / hapus kotak Saldo Awal dari tampilan & nol-kan nilainya
+  function hapusKotakSaldoAwal() {
+    localStorage.removeItem('pms_saldo_awal_rp_v1');
+    localStorage.removeItem('pms_saldo_awal_usd_v1');
+    ['saldoAwalLive', 'inpSaldoAwalRpPMS', 'inpSaldoAwalUsdPMS'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.parentElement) el.parentElement.style.display = 'none';
+    });
+    var grup = document.getElementById('grupSaldoAwalKananPMS');
+    if (grup) grup.style.display = 'none';
+  }
+
+  // 3. Hitung seluruh kartu saldo murni dari tabel tanpa kedip
+  window.updateSaldoTanpaKedip = function() {
+    hapusKotakSaldoAwal();
+    var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
+    if (st.saldoAwal) {
+      st.saldoAwal = 0;
+      localStorage.setItem('pms_admin_live_v1', JSON.stringify(st));
+    }
+    if (!localStorage.getItem('pms_clean_cair_dec2026_v3') && st.pencairanBulan && Object.keys(st.pencairanBulan).length > 0) {
+      st.pencairanBulan = {};
+      localStorage.setItem('pms_admin_live_v1', JSON.stringify(st));
+      localStorage.setItem('pms_clean_cair_dec2026_v3', 'OK');
+    }
+
+    var kurs = parseFloat(String(st.kursUsd || 15800).replace(/\./g, '').replace(',', '.')) || 15800;
+
+    var histRp = 0, histUsd = 0;
+    document.querySelectorAll('#tbLive tr').forEach(function(tr) {
+      var tds = tr.querySelectorAll('td');
+      if (tds.length < 9) return;
+      var txt = (tds.item(8).textContent || '').trim();
+      if (txt.indexOf('$') !== -1) histUsd += angkaUsd(txt);
+      else histRp += angkaRp(txt);
+    });
+
+    var totDicairkan = 0;
+    if (st.pencairanBulan) {
+      Object.keys(st.pencairanBulan).forEach(function(b) { totDicairkan += Number(st.pencairanBulan[b] || 0); });
+    }
+
+    var konvHist = Math.round(histUsd * kurs);
+    var grandTotal = Math.max(0, Math.round(histRp + konvHist - totDicairkan));
+
+    var elRp = document.getElementById('kBoxRp');
+    var elUsd = document.getElementById('kBoxUsd');
+    var elKonv = document.getElementById('kBoxKonv');
+    var elTot = document.getElementById('kBoxTotal');
+
+    if (elRp) elRp.textContent = fmtIdr(histRp);
+    if (elUsd) elUsd.textContent = fmtUsd(histUsd);
+    if (elKonv) elKonv.textContent = fmtIdr(konvHist);
+    if (elTot) elTot.textContent = fmtIdr(grandTotal);
+
+    var nowObj = new Date();
+    var blnPilih = (document.getElementById('kBulanTersedia') && document.getElementById('kBulanTersedia').value) || (nowObj.getFullYear() + '-' + String(nowObj.getMonth() + 1).padStart(2, '0'));
+    var dtExp = new Date(Number(blnPilih.slice(0, 4)), Number(blnPilih.slice(5, 7)), 1);
+    var targetExpYm = dtExp.getFullYear() + '-' + String(dtExp.getMonth() + 1).padStart(2, '0');
+
+    var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
+    var admMap = st.admin || {};
+
+    ['rp', 'usd'].forEach(function(tipe) {
+      var inp = document.getElementById('inpPl_' + tipe);
+      var teks = (inp ? inp.value : '').trim().toLowerCase();
+      var pilihan = (teks === '' || teks === 'semua playlist') ? 'all' : teks;
+
+      var sum = 0, pot = 0, cek = {};
+      dbList.forEach(function(x) {
+        if ((x.selesai || '').slice(0, 7) !== targetExpYm) return;
+        var isUsd = String(x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+        if (tipe === 'rp' && isUsd) return;
+        if (tipe === 'usd' && !isUsd) return;
+
+        var plDb = (x.playlist || '').replace(' Playlist Placement', '').trim().toLowerCase();
+        if (pilihan !== 'all' && plDb !== pilihan && plDb.indexOf(pilihan) === -1) return;
+
+        sum += Number(x.sub || 0);
+        var kAsli = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+        var kCek = kAsli + '|' + pilihan;
+        if (!cek[kCek]) {
+          cek[kCek] = true;
+          pot += Number(admMap[kAsli] || 0);
+        }
+      });
+
+      var bersih = Math.max(0, sum - pot);
+      if (tipe === 'rp' && document.getElementById('kSubRpBln')) {
+        document.getElementById('kSubRpBln').textContent = 'Bulan Berjalan: ' + fmtIdr(bersih);
+      } else if (tipe === 'usd' && document.getElementById('kSubUsdBln')) {
+        document.getElementById('kSubUsdBln').textContent = 'Bulan Berjalan: ' + fmtUsd(bersih);
+      }
+    });
+
+    var blnRpAll = 0, blnUsdAll = 0, cekAll = {};
+    dbList.forEach(function(x) {
+      if ((x.selesai || '').slice(0, 7) !== targetExpYm) return;
+      var isUsd = String(x.noInv || '').toUpperCase().indexOf('INT') !== -1;
+      if (isUsd) blnUsdAll += Number(x.sub || 0);
+      else blnRpAll += Number(x.sub || 0);
+      var k = x.noInv + '|' + x.client + '|' + (x.mulai || '') + '|' + (x.selesai || '');
+      if (!cekAll[k]) {
+        cekAll[k] = true;
+        var pot = Number(admMap[k] || 0);
+        if (isUsd) blnUsdAll -= pot; else blnRpAll -= pot;
+      }
+    });
+    var totBlnAll = Math.max(0, Math.round(blnRpAll + Math.round(blnUsdAll * kurs)));
+
+    var elSubTot = document.getElementById('kSubTotalBln');
+    if (elSubTot) elSubTot.innerHTML = 'Total Saldo Bulan Berjalan:<br><span style="font-size:12px; color:#fff;">' + fmtIdr(totBlnAll) + '</span>';
+
+    var sudahCair = st.pencairanBulan && st.pencairanBulan[blnPilih];
+    var elTers = document.getElementById('kBoxTersedia');
+    if (elTers) elTers.textContent = fmtIdr(sudahCair ? 0 : totBlnAll);
+  };
+
+  window.hitung4KotakSaldo = function() {};
+  if (typeof window.renderLive === 'function') {
+    var rOrig = window.renderLive;
+    window.renderLive = function() {
+      rOrig();
+      window.updateSaldoTanpaKedip();
+    };
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') {
+      if (e.target.closest('#tbLive td') || e.target.id === 'kInputKurs') {
+        e.preventDefault();
+        e.target.blur();
+      }
+    }
+  }, true);
+
+  window.addEventListener('load', function() {
+    setTimeout(window.updateSaldoTanpaKedip, 150);
+  });
+})();
+</script>
 
 </body>
 </html>
