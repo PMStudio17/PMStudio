@@ -61,7 +61,7 @@
     display: none !important;
   }
   #badgeSyncCloud { display: none !important; }
-
+@media screen {
 /* Tema Warna Utama dari Logo PM Studio */
 :root {
   --pm-biru-pastel: #b5d6e8;
@@ -211,7 +211,19 @@ body::before {
   top: 0;
   z-index: 15;
 }
-	
+	/* 👇 KETIK INI DI ATAS ":root {" 👇 */
+@media screen {
+
+  /* Tema Warna Utama dari Logo PM Studio */
+  :root {
+    --pm-biru-pastel: #b5d6e8;
+    /* ... seluruh kode termasuk baris 132 background-image: url('bg.png') ... */
+  }
+
+  /* ... sampai akhir blok tambahan beranda ... */
+
+} /* 👈 KETIK KURUNG TUTUP INI DI ATAS </style> */
+
 </style>	
 </head>
 <body>
