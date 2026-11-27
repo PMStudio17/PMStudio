@@ -525,6 +525,7 @@ window.addEventListener('DOMContentLoaded', function() {
           '<option value="AMAN">&#9203; Masih Aktif (AMAN)</option>' +
           '<option value="SELESAI">&#9989; Sudah Selesai (SELESAI)</option>' +
         '</select>' +
+	    '<input type="month" id="filterBulanSaldo" title="Filter berdasarkan Expired Date" style="padding:5px 8px; border:1px solid #cbd5e1; border-radius:4px; font-size:12px; background:#fff;">' +
         '<div style="background:#dcfce7; border:1px solid #86efac; padding:5px 10px; border-radius:4px; font-size:12px; font-weight:bold; color:#166534;">' +
           'Saldo Awal: Rp <input type="text" id="saldoAwalLive" value="0" onchange="simpanSaldoAwal()" style="width:110px; padding:3px 6px; border:1px solid #86efac; border-radius:3px; font-weight:bold; text-align:right;">' +
         '</div>' +
@@ -2979,6 +2980,99 @@ window.addEventListener('load', function() {
   });
 })();
 </script>
-	  
+	  <script>
+(function() {
+  var mapBulan = {
+    '01':['jan', 'januari', 'january'],
+    '02':['feb', 'februari', 'february'],
+    '03':['mar', 'maret', 'march'],
+    '04':['apr', 'april'],
+    '05':['mei', 'may'],
+    '06':['jun', 'juni', 'june'],
+    '07':['jul', 'juli', 'july'],
+    '08':['agu', 'agustus', 'aug', 'august'],
+    '09':['sep', 'september'],
+    '10':['okt', 'oktober', 'oct', 'october'],
+    '11':['nov', 'november'],
+    '12':['des', 'desember', 'dec', 'december']
+  };
+
+  function cocokBulanExp(teks, bulanDipilih) {
+    var thn4 = bulanDipilih.slice(0, 4); // '2027'
+    var thn2 = bulanDipilih.slice(2, 4); // '27'
+    var mm   = bulanDipilih.slice(5, 7); // '01'
+    var namaBlnList = mapBulan[mm] || [];
+
+    if (teks.indexOf(thn4 + '-' + mm) !== -1) return true;
+    if (teks.indexOf('/' + mm + '/' + thn4) !== -1 || teks.indexOf('/' + mm + '/' + thn2) !== -1) return true;
+    if (teks.indexOf('-' + mm + '-' + thn4) !== -1 || teks.indexOf('-' + mm + '-' + thn2) !== -1) return true;
+
+    for (var j = 0; j < namaBlnList.length; j++) {
+      var b = namaBlnList[j];
+      if (
+        teks.indexOf('-' + b + '-' + thn2) !== -1 ||
+        teks.indexOf('-' + b + '-' + thn4) !== -1 ||
+        teks.indexOf(' ' + b + ' ' + thn2) !== -1 ||
+        teks.indexOf(' ' + b + ' ' + thn4) !== -1
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function jalankanFilterBulanSaldo() {
+    var inpBulan = document.getElementById('filterBulanSaldo');
+    var tbLive = document.getElementById('tbLive');
+    if (!inpBulan || !tbLive) return;
+
+    var bulanDipilih = inpBulan.value || '';
+    var baris = tbLive.getElementsByTagName('tr');
+
+    for (var i = 0; i < baris.length; i++) {
+      var tr = baris[i];
+      if (!bulanDipilih || bulanDipilih.length < 7) {
+        tr.style.removeProperty('display');
+        continue;
+      }
+
+      // Kolom EXPIRED DATE selalu berada di posisi ke-8 dari kanan (atau indeks 1 jika baris penuh 9 kolom)
+      // Hitung dari kanan: [0:JOIN, 1:EXP, 2:STATUS, 3:ARTIS, 4:JML, 5:PLAYLIST, 6:NOMINAL, 7:ADMIN, 8:NET]
+      var totalSel = tr.cells ? tr.cells.length : 0;
+      var selExp = (totalSel >= 8) ? tr.cells.item(totalSel - 8) : null;
+      var teksExp = selExp ? selExp.textContent.trim().toLowerCase() : '';
+
+      if (cocokBulanExp(teksExp, bulanDipilih)) {
+        tr.style.removeProperty('display');
+      } else {
+        tr.style.setProperty('display', 'none', 'important');
+      }
+    }
+  }
+
+  document.addEventListener('change', function(e) {
+    if (e.target && (e.target.id === 'filterBulanSaldo' || e.target.id === 'filterStatusLive')) {
+      setTimeout(jalankanFilterBulanSaldo, 50);
+    }
+  });
+
+  document.addEventListener('input', function(e) {
+    if (e.target && (e.target.id === 'filterBulanSaldo' || e.target.id === 'cariLive')) {
+      setTimeout(jalankanFilterBulanSaldo, 50);
+    }
+  });
+
+  window.addEventListener('load', function() {
+    if (typeof window.renderLive === 'function') {
+      var renderLiveAsli = window.renderLive;
+      window.renderLive = function() {
+        renderLiveAsli.apply(this, arguments);
+        jalankanFilterBulanSaldo();
+      };
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
