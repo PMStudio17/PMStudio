@@ -845,7 +845,7 @@ function hitungSlipSimple() {
   var judulPeriode = 'Periode ' + (namaBln[Number(bln.slice(5, 7)) - 1] || '') + ' ' + bln.slice(0, 4);
   var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
   var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
-  var kurs = Number(st.kursUsd || 15800);
+  var kurs = Number(st.kursUsd || 0);
   var admMap = st.admin || {};
 
   var dbMain = 0, dbSec = 0, dbAlt = 0, dbAdm = 0;
@@ -1117,7 +1117,7 @@ window.addEventListener('load', function() {
     var bln = Number(blnPilih.slice(5, 7));
     var dtNext = new Date(thn, bln, 1);
     var blnExp = dtNext.getFullYear() + '-' + String(dtNext.getMonth() + 1).padStart(2, '0');
-    var kurs = parseAngka5(st.kursUsd || 15800);
+    var kurs = parseAngka5(st.kursUsd || 0);
     var admMap = st.admin || {};
 
     var sudahPernahCair = st.pencairanBulan && Object.keys(st.pencairanBulan).some(function(b) { return b !== blnPilih; });
@@ -1332,7 +1332,7 @@ window.addEventListener('load', function() {
 
     var dbList = JSON.parse(localStorage.getItem('pms_db_v1') || '[]');
     var st = JSON.parse(localStorage.getItem('pms_admin_live_v1') || '{}');
-    var kurs = parseAngkaBln(st.kursUsd || 15800);
+    var kurs = parseAngkaBln(st.kursUsd || 0);
     var admMap = st.admin || {};
 
     var blnRp = 0, blnUsd = 0, blnAdmRp = 0;
@@ -2287,7 +2287,7 @@ window.addEventListener('load', function() {
 
     var baseRp = parseFloat(elRp.dataset.baseRp) || 0;
     var baseUsd = parseFloat(elUsd.dataset.baseUsd) || 0;
-    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 15800) : 15800;
+    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 0) : 0;
 
     var finalRp = baseRp + awalRp;
     var finalUsd = baseUsd + awalUsd;
@@ -2507,7 +2507,7 @@ window.addEventListener('load', function() {
 
     var baseBerjalanRp = parseFloat(elBerjalanRp.dataset.baseRp) || 0;
     var baseBerjalanUsd = parseFloat(elBerjalanUsd.dataset.baseUsd) || 0;
-    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 15800) : 15800;
+    var kurs = inpKurs ? (parseFloat(String(inpKurs.value).replace(/\./g, '').replace(',', '.')) || 0) : 0;
 
     var finalBerjalanRp = baseBerjalanRp + awalRp;
     var finalBerjalanUsd = baseBerjalanUsd + awalUsd;
@@ -2703,7 +2703,7 @@ window.addEventListener('load', function() {
       localStorage.setItem('pms_clean_cair_dec2026_v3', 'OK');
     }
 
-    var kurs = parseFloat(String(st.kursUsd || 15800).replace(/\./g, '').replace(',', '.')) || 15800;
+    var kurs = parseFloat(String(st.kursUsd || 15800).replace(/\./g, '').replace(',', '.')) || 0;
 
     var histRp = 0, histUsd = 0;
     document.querySelectorAll('#tbLive tr').forEach(function(tr) {
