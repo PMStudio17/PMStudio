@@ -197,6 +197,20 @@ body::before {
   margin-top: 0 !important;
   border-bottom: 1px solid rgba(30, 36, 43, 0.12);
 }
+	/* Scroll internal tabel Rekap agar tidak memanjang memenuhi layar */
+#pRekap .tbl-wrap {
+  max-height: 460px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+/* Kepala tabel biru tetap menempel (freeze) saat tabel di-scroll */
+#pRekap table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
 	
 </style>	
 </head>
@@ -250,6 +264,14 @@ body::before {
   <div id="pRekap" class="panel">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <h3 style="margin:0;">Rekap Data Keseluruhan</h3>
+		<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+      <input type="text" id="cariRekap" placeholder="🔍 Cari Client, Artis, Lagu, Invoice..." 
+             onkeyup="filterTabelRekap()" 
+             style="padding:7px 12px; width:230px; border:1px solid #94a3b8; border-radius:6px; font-size:13px;">
+      <input type="month" id="filterBulanRekap" onchange="filterTabelRekap()" 
+             title="Filter berdasarkan bulan invoice"
+             style="padding:6px 10px; border:1px solid #94a3b8; border-radius:6px; font-size:13px;">
+    </div>
       <div>
         <button type="button" class="btn btn-sm btn-green" onclick="downloadCsv()">Download CSV (CSV)</button>
         <button type="button" class="btn btn-sm btn-red" onclick="hapusSemua()">Hapus Semua</button>
@@ -2871,6 +2893,77 @@ window.addEventListener('load', function() {
   window.addEventListener('load', function() {
     hitungDanTampilTotalAdmin();
     setTimeout(hitungDanTampilTotalAdmin, 300);
+  });
+})();
+</script>
+<script>
+(function() {
+  var mapBulan = {
+    '01':'jan', '02':'feb', '03':'mar', '04':'apr', '05':'mei', '06':'jun',
+    '07':'jul', '08':'agu', '09':'sep', '10':'okt', '11':'nov', '12':'des'
+  };
+
+  function jalankanFilterRekap() {
+    var inpCari = document.getElementById('cariRekap');
+    var inpBulan = document.getElementById('filterBulanRekap');
+    var kataKunci = inpCari ? inpCari.value.toLowerCase().trim() : '';
+    var bulanDipilih = inpBulan ? inpBulan.value : '';
+
+    var polaExp = '';
+    if (bulanDipilih && bulanDipilih.length >= 7) {
+      var thn = bulanDipilih.slice(2, 4);
+      var bln = mapBulan[bulanDipilih.slice(5, 7)] || '';
+      if (bln) polaExp = '-' + bln + '-' + thn;
+    }
+
+    var baris = Array.from(document.querySelectorAll('#tbRekap tr'));
+    var i = 0;
+
+    while (i < baris.length) {
+      var trUtama = baris[i];
+      var selUtama = trUtama.getElementsByTagName('td');
+      // Cek apakah baris ini punya rowspan (gabungan beberapa baris)
+      var jumlahGabung = 1;
+      if (selUtama.length > 0 && selUtama[0].hasAttribute('rowspan')) {
+        jumlahGabung = parseInt(selUtama[0].getAttribute('rowspan'), 10) || 1;
+      }
+
+      var grupBaris = baris.slice(i, i + jumlahGabung);
+      var teksGrup = grupBaris.map(function(r) { return r.textContent.toLowerCase(); }).join(' ');
+      var cocokKata = !kataKunci || teksGrup.indexOf(kataKunci) !== -1;
+
+      var cocokExp = true;
+      if (polaExp) {
+        cocokExp = grupBaris.some(function(r) {
+          var sel = r.getElementsByTagName('td');
+          var total = sel.length;
+          var teksExp = total >= 5 ? sel[total - 5].textContent.trim().toLowerCase() : '';
+          return teksExp.indexOf(polaExp) !== -1;
+        });
+      }
+
+      grupBaris.forEach(function(r) {
+        if (cocokKata && cocokExp) {
+          r.style.removeProperty('display');
+        } else {
+          r.style.setProperty('display', 'none', 'important');
+        }
+      });
+
+      i += jumlahGabung;
+    }
+  }
+
+  document.addEventListener('input', function(e) {
+    if (e.target && (e.target.id === 'cariRekap' || e.target.id === 'filterBulanRekap')) {
+      jalankanFilterRekap();
+    }
+  });
+
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'filterBulanRekap') {
+      jalankanFilterRekap();
+    }
   });
 })();
 </script>
