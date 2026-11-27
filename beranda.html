@@ -62,6 +62,70 @@
   }
   #badgeSyncCloud { display: none !important; }
 
+/* Tema Warna Utama dari Logo PM Studio */
+:root {
+  --pm-biru-pastel: #b5d6e8;
+  --pm-peach-hangat: #f7d5b9;
+  --pm-krem-lembut: #fdf8f2;
+  --pm-gelap-tinta: #1e242b;
+  --pm-kuning-aksen: #f7c948;
+  --pm-pink-aksen: #f28599;
+}
+
+/* Background Utama Beranda */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--pm-gelap-tinta);
+  /* Gradasi lembut perpaduan warna bingkai biru dan latar peach logo */
+  background: linear-gradient(135deg, #c6e0ef 0%, #fdf6ee 50%, #f8dcc4 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Efek Kotak / Panel Beranda (Glassmorphism) */
+.container, .panel, .card {
+  background: rgba(255, 255, 255, 0.85); /* Putih semi-transparan agar background tetap terlihat */
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--pm-biru-pastel);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(30, 36, 43, 0.08);
+}
+
+/* Tombol & Menu Aktif */
+button, .menu-btn {
+  background-color: var(--pm-biru-pastel);
+  color: var(--pm-gelap-tinta);
+  border: 2px solid var(--pm-gelap-tinta);
+  border-radius: 10px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+button:hover, .menu-btn:hover {
+  background-color: var(--pm-kuning-aksen);
+  transform: translateY(-2px);
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  height: 350px;
+  /* Ganti 'PMS.png' dengan nama file gambar logomu */
+  background-image: url('PMS.png'); 
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.12; /* Sangat transparan agar teks tabel tetap jelas */
+  z-index: -1;
+  pointer-events: none;
+}
+	
 </style>
 
 
