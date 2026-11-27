@@ -15,7 +15,7 @@ selStat.style.padding = '7px';
 });
 selStat.onchange = renderInv;
 const btnPr = document.createElement('button');
-btnPr.type = 'button'; btnPr.className = 'btn btn-sm'; btnPr.textContent = 'Print / PDF';
+btnPr.type = 'button'; btnPr.className = 'btn btn-sm'; btnPr.textContent = '🖨 Print / Save PDF';
 btnPr.onclick = () => window.print();
 bar.append('Pilih Invoice: ', selInv, ' Status: ', selStat, btnPr);
 
