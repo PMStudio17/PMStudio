@@ -175,12 +175,30 @@ body::before {
   border: none !important;
 }
 
+	/* =========================================================
+   MEMBUAT HEADER & DERETAN TOMBOL MENU FREEZE SAAT SCROLL
+   ========================================================= */
 
+/* 1. Header Atas Tetap Menempel di Paling Atas */
+.top {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* 2. Deretan Tombol Menu Menempel Tepat di Bawah Header */
+.tabs {
+  position: sticky !important;
+  top: 56px !important; /* Menyesuaikan tinggi bar header hitam di atasnya */
+  z-index: 999 !important;
+  background: rgba(253, 248, 242, 0.85) !important; /* Latar lembut semi-transparan agar tulisan menu tetap terbaca saat menimpa tabel */
+  backdrop-filter: blur(8px);
+  padding: 10px 16px !important;
+  margin-top: 0 !important;
+  border-bottom: 1px solid rgba(30, 36, 43, 0.12);
+}
 	
-</style>
-
-
-	
+</style>	
 </head>
 <body>
 <div class="wrap">
